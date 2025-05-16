@@ -1,0 +1,41 @@
+{
+    "workbench.colorCustomizations": {
+        "activityBar.activeBackground": "#c7d369",
+        "activityBar.background": "#c7d369",
+        "activityBar.foreground": "#15202b",
+        "activityBar.inactiveForeground": "#15202b99",
+        "activityBarBadge.background": "#2b8894",
+        "activityBarBadge.foreground": "#e7e7e7",
+        "commandCenter.border": "#15202b99",
+        "sash.hoverBorder": "#c7d369",
+        "statusBar.background": "#b8c842",
+        "statusBar.foreground": "#15202b",
+        "statusBarItem.hoverBackground": "#98a730",
+        "statusBarItem.remoteBackground": "#b8c842",
+        "statusBarItem.remoteForeground": "#15202b",
+        "titleBar.activeBackground": "#b8c842",
+        "titleBar.activeForeground": "#15202b",
+        "titleBar.inactiveBackground": "#b8c84299",
+        "titleBar.inactiveForeground": "#15202b99"
+    },
+    "peacock.color": "#b8c842",
+    "python.defaultInterpreterPath": "${workspaceFolder}/venv/bin/python",
+    "python.analysis.extraPaths": ["${workspaceFolder}"],
+    "python.terminal.activateEnvironment": true,
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        }
+    },
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "python.linting.flake8Enabled": false,
+    "python.formatting.provider": "black",
+    "python.testing.pytestEnabled": true,
+    "python.testing.unittestEnabled": false,
+    "python.testing.nosetestsEnabled": false,
+    "python.testing.pytestArgs": [
+        "tests"
+    ]
+}
