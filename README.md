@@ -18,7 +18,8 @@ A FastAPI-based application that integrates with WhatsApp to provide AI-powered 
 - **Deployment**: Docker, Google Cloud Run, GitHub Actions
 
 ## Local Development
-
+To run the application locally, you
+`ngrok http --url=renewed-selected-man.ngrok-free.app 8000`
 ### Prerequisites
 
 - Python 3.13
