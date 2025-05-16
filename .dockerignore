@@ -1,0 +1,39 @@
+# Git
+.git
+.gitignore
+.github/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+env/
+*.egg-info/
+dist/
+build/
+
+# VS Code
+.vscode/
+
+# Environment variables
+.env
+*.env
+
+# Tests
+tests/
+
+# Documentation
+README.md
+LICENSE
+
+# Google Cloud credentials
+*-credentials.json
+*credentials*.json
+
+# Docker
+Dockerfile
+.dockerignore
