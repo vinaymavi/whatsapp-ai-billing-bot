@@ -20,7 +20,11 @@ class Settings(BaseSettings):
     debug: bool = Field(default=False, alias="DEBUG")
     api_host: str = Field(default="0.0.0.0", alias="API_HOST")
     api_port: int = Field(default=8000, alias="API_PORT")
+    log_level: str = Field(default="INFO", alias="LOG_LEVEL")
     
+    
+    webhook_token: str = Field(alias="WEBHOOK_TOKEN")
+
     # WhatsApp API Settings
     whatsapp_api_token: str = Field(alias="WHATSAPP_API_TOKEN")
     whatsapp_phone_number_id: str = Field(alias="WHATSAPP_PHONE_NUMBER_ID")
