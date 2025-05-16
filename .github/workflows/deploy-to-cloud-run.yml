@@ -8,7 +8,7 @@ on:
 env:
   GCP_REGION: us-central1
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  GCP_IMAGE_REPO: ai-agents
+  GCP_IMAGE_REPO: agents
   GCP_IMAGE_NAME: whatsapp-ai-agent
 jobs:
   deploy:
