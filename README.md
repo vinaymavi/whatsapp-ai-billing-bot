@@ -1,5 +1,9 @@
 # WhatsApp AI Billing Bot: Revolutionize Your Invoice Management
 
+<p align="center">
+    <img src="docs/banner.png" alt="WhatsApp AI Billing Bot Banner" width="100%" />
+</p>
+
 **Transform your billing process with AI-powered WhatsApp automation**
 
 WhatsApp AI Billing Bot is an innovative solution that leverages artificial intelligence to streamline your billing and invoice management through WhatsApp – the messaging platform your customers already use every day.
