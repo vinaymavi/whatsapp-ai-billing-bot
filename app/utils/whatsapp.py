@@ -65,9 +65,6 @@ def download_whatsapp_media(
         media_dir = Path("media") / media_type
         os.makedirs(media_dir, exist_ok=True)
         
-        # Generate a unique filename
-        file_path = media_dir / f"{sender_id}_{media_id}.bin"
-        
         # Step 1: Get the media URL
         url = f"https://graph.facebook.com/v18.0/{media_id}"
         headers = {
@@ -86,10 +83,52 @@ def download_whatsapp_media(
         
         media_data = response.json()
         media_url = media_data.get('url')
+        mime_type = media_data.get('mime_type', '')
         
         if not media_url:
             logger.error(f"Failed to get URL for media ID: {media_id}")
             return None
+        
+        # Determine the appropriate file extension based on media type and mime type
+        extension = ".bin"  # Default extension
+        
+        if media_type == "image":
+            if "jpeg" in mime_type or "jpg" in mime_type:
+                extension = ".jpg"
+            elif "png" in mime_type:
+                extension = ".png"
+            elif "gif" in mime_type:
+                extension = ".gif"
+            elif "webp" in mime_type:
+                extension = ".webp"
+        elif media_type == "document":
+            if "pdf" in mime_type:
+                extension = ".pdf"
+            elif "word" in mime_type or "docx" in mime_type:
+                extension = ".docx"
+            elif "excel" in mime_type or "xlsx" in mime_type:
+                extension = ".xlsx"
+            elif "text" in mime_type:
+                extension = ".txt"
+        elif media_type == "audio":
+            if "mp3" in mime_type:
+                extension = ".mp3"
+            elif "ogg" in mime_type:
+                extension = ".ogg"
+            elif "wav" in mime_type:
+                extension = ".wav"
+            elif "mpeg" in mime_type:
+                extension = ".mp3"
+        elif media_type == "video":
+            if "mp4" in mime_type:
+                extension = ".mp4"
+            elif "mpeg" in mime_type:
+                extension = ".mp4"
+            elif "mov" in mime_type:
+                extension = ".mov"
+        
+        # Generate a unique filename with the appropriate extension
+        file_path = media_dir / f"{sender_id}_{media_id}{extension}"
         
         # Step 2: Download the media
         response = requests.get(
@@ -104,7 +143,7 @@ def download_whatsapp_media(
             for chunk in response.iter_content(chunk_size=8192):
                 f.write(chunk)
         
-        logger.info(f"Downloaded {media_type} to {file_path}")
+        logger.info(f"Downloaded {media_type} to {file_path} with extension {extension}")
         return str(file_path)
         
     except Exception as e:
