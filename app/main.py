@@ -217,7 +217,7 @@ def process_whatsapp_message(message, settings):
             # TODO: Implement text message handling
             logger.info(f"Received text message: {text_body}")
             
-            resp = llm_service.generate(text_body)
+            resp = llm_service.query(text_body)
             logger.info(f"LLM response: {resp}")
             return send_whatsapp_message(
                 sender_id,
