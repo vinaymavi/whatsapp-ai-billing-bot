@@ -17,6 +17,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import Settings, get_settings
 from app.services.ai_service import (analyze_text_with_openai,
                                      generate_bill_summary)
+from app.services.llm_service import llm_service
 from app.utils.document_processor import (extract_text_from_image,
                                           process_excel_document,
                                           process_pdf_document)
@@ -216,11 +217,13 @@ def process_whatsapp_message(message, settings):
             # TODO: Implement text message handling
             logger.info(f"Received text message: {text_body}")
             
-            # Here you would add the logic to:
-            # 1. Extract billing information from the message
-            # 2. Process it with AI (OpenAI)
-            # 3. Store in Firestore
-            # 4. Respond to the user
+            resp = llm_service.generate(text_body)
+            logger.info(f"LLM response: {resp}")
+            return send_whatsapp_message(
+                sender_id,
+                f"{resp}",
+                settings
+            )
             
         elif message_type == 'image':
             # Extract image details
