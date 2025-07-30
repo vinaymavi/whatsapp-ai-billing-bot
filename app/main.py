@@ -17,6 +17,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import Settings, get_settings
 from app.services.ai_service import (analyze_text_with_openai,
                                      generate_bill_summary)
+from app.services.firebase_chat_history import FirebaseChatHistory
 from app.services.llm_service import llm_service
 from app.utils.document_processor import (extract_text_from_image,
                                           process_excel_document,
@@ -205,7 +206,7 @@ def process_whatsapp_message(message, settings):
         message_type = message.get('type')
         sender_id = message.get('from')
         timestamp = message.get('timestamp')
-        
+        chat_history = FirebaseChatHistory(sender_id)
         # Log the receipt of message
         logger.info(f"Processing message from {sender_id}, type: {message_type}, id: {message_id}")
         
@@ -216,9 +217,12 @@ def process_whatsapp_message(message, settings):
             
             # TODO: Implement text message handling
             logger.info(f"Received text message: {text_body}")
-            
+            chat_history.add_human_message(text_body)
+            # TODO: update llm service to accest chat history
             resp = llm_service.query(text_body)
+            chat_history.add_ai_message(resp)
             logger.info(f"LLM response: {resp}")
+            chat_history.commit()
             return send_whatsapp_message(
                 sender_id,
                 f"{resp}",
