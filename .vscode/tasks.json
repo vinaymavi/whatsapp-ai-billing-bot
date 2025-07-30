@@ -16,6 +16,20 @@
             "problemMatcher": []
         },
         {
+            "label": "NgRock",
+            "type": "shell",
+            "command": "ngrok http --url=renewed-selected-man.ngrok-free.app 8000",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "Run Tests",
             "type": "shell",
             "command": "${workspaceFolder}/.venv/bin/python -m pytest tests -v",
