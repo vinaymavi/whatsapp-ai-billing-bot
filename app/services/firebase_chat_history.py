@@ -63,7 +63,7 @@ class FirebaseChatHistory(BaseChatMessageHistory):
         self.db.delete(DB_COLLECTION_NAME, self.user_id)
 
     def _create_empty_message_list(self):
-        self.db.create(DB_COLLECTION_NAME, self.user_id, {"messages": []})
+        FirebaseChatHistory.db.write_with_ttl(DB_COLLECTION_NAME, self.user_id, {"messages": []})
 
     def _write(self):
         # Write messages to the database when document exists
