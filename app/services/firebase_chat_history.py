@@ -3,15 +3,16 @@ from typing import Dict, List
 
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.messages import (AIMessage, BaseMessage, HumanMessage,
-                                     SystemMessage)
+                                     SystemMessage, ToolMessage)
 
 from app.services.db_service import FirestoreService, db_service
 from app.utils.helpers import langchain_msg_to_dict, list_to_langchain_msg
+from app.utils.prompt import system_prompt
 
-
+DB_COLLECTION_NAME = 'chat_history'
 class FirebaseChatHistory(BaseChatMessageHistory):
-    db:FirestoreService = db_service    
-    DB_COLLECTOIN_NAME = 'chat_history'    
+    db:FirestoreService = db_service
+
     def __init__(self, use_id:str):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.info(f"Chat history created for user {use_id}")
@@ -36,11 +37,18 @@ class FirebaseChatHistory(BaseChatMessageHistory):
         self._write()
         
     def _get_messages(self):
-        doc_dict = self.db.read(self.DB_COLLECTOIN_NAME, self.user_id)
-        messges = doc_dict.get('messages', [])
-        langchain_msgs =  list_to_langchain_msg(messges)
-        self.messages = langchain_msgs
+        doc_dict = self.db.read(DB_COLLECTION_NAME, self.user_id)
+        messages = doc_dict.get('messages', []) if doc_dict else []
+        langchain_msgs = list_to_langchain_msg(messages)
+
+        if len(langchain_msgs) == 0:
+                langchain_msgs.append(system_prompt)
         
+        self.messages = langchain_msgs
+        # If doc_dict is empty create an empty document in DB
+        if not doc_dict:
+            self._create_empty_message_list()
+
     def add_human_message(self, msg:str):
         human_msg = HumanMessage(msg)
         self.add_message(human_msg)
@@ -48,10 +56,20 @@ class FirebaseChatHistory(BaseChatMessageHistory):
     def add_ai_message(self, msg:str):
         self.add_message(AIMessage(msg))
         
+    def add_tool_message(self,msg:str, tool_call_id:str):
+        self.add_message(ToolMessage(content=msg, tool_call_id=tool_call_id))
+
     def clear(self):
-        self.logger.info('Clear history')
-        
+        self.db.delete(DB_COLLECTION_NAME, self.user_id)
+
+    def _create_empty_message_list(self):
+        self.db.create(DB_COLLECTION_NAME, self.user_id, {"messages": []})
+
     def _write(self):
+        # Write messages to the database when document exists
+        doc_dict = self.db.read(DB_COLLECTION_NAME, self.user_id)
+        if not doc_dict:
+            self.logger.warning(f"No document found for user {self.user_id}. Not able to commit")
+            return
         _list = langchain_msg_to_dict(self.messages)
-        self.db.write(self.DB_COLLECTOIN_NAME,self.user_id, {"messages": _list})
-    
+        self.db.write_with_ttl(DB_COLLECTION_NAME,self.user_id, {"messages": _list})

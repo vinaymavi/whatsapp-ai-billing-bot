@@ -9,16 +9,24 @@ environment variable. Supported providers can be extended easily.
 # Add more imports as needed for other providers
 import logging
 import os
-from typing import Any
+from typing import Any, Dict, List
 
 from langchain_core.language_models import BaseChatModel
+from langchain_core.messages import BaseMessage
+from langchain_core.prompts import ChatPromptTemplate
 # Import supported LangChain LLMs here
 from langchain_openai import ChatOpenAI
 
+from app.utils.llm_tools import delete_context  # Import the tool
 from app.utils.prompt import prompt_v1  # Import the prompt template
+from app.utils.types import LLMResponse  # Import the LLMResponse type
 
 logger = logging.getLogger(__name__)
+
+
 class LLMService:
+    tools = [delete_context]
+
     """
     LLMService dynamically selects and initializes an LLM instance
     based on the LLM_PROVIDER environment variable.
@@ -35,25 +43,54 @@ class LLMService:
         """
         if self.provider == "openai":
             # Reads OpenAI API key from env var OPENAI_API_KEY
-            return ChatOpenAI(model=self.model_name, temperature=0.7, max_completion_tokens=500)
+            return ChatOpenAI(model=self.model_name, temperature=0.7, max_completion_tokens=500).bind_tools(self.tools)
         # Add more providers here as needed
         raise ValueError(f"Unsupported LLM provider: {self.provider}")
 
-    def _generate(self, prompt: str, **kwargs) -> Any:
+    def _generate(self, prompt: str, **kwargs) -> LLMResponse:
         """
         Generate a response from the LLM for the given prompt.
         """
         logger.info(f"Generating response using {self.provider} provider with model {self.model_name}")
         logger.info(f"Prompt: {prompt}")
         resp =  self.llm.invoke(prompt, **kwargs)
-        return resp.content if hasattr(resp, 'content') else str(resp)
+        logger.info(f"{resp}")
+        return self._send_resp(resp)
     
-    def query(self, query: str, **kwargs) -> Any:
+    def _send_resp(self, resp:Any) -> LLMResponse:
         """
-        Query the LLM with a specific query.
+        Send the response back to the user.        
         """
-        prompt = prompt_v1.format(query=query)        
+        
+        if hasattr(resp, 'tool_calls') and isinstance(resp.tool_calls, list) and len(resp.tool_calls) > 0:
+            return LLMResponse(
+                type="tool_calls",
+                tool_calls=resp.tool_calls
+            )
+        elif hasattr(resp, 'content') and len(resp.content) > 0:
+            content_length = len(resp.content) if isinstance(resp.content, str) else 0
+            logger.info(f"Response content length: {content_length}")
+            return LLMResponse(
+                type="message",
+                text=resp.content
+            )
+            
+        return LLMResponse(
+            type="message",
+            text=str(resp)
+        )
+
+    def query(self, prompt: str, **kwargs) -> LLMResponse:
+        """
+        Query the LLM with a specific prompt.
+        """       
+        logger.info(f" Prompt : {prompt}")
         return self._generate(prompt, **kwargs)
+    
+    def format_and_query(self, messages:List[BaseMessage]) -> LLMResponse:
+        template = ChatPromptTemplate(messages=messages)
+        return self.query(template.format())
+
 
 # Singleton instance for app-wide use
 llm_service = LLMService()

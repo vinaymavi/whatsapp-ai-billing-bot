@@ -22,6 +22,8 @@ from app.services.llm_service import llm_service
 from app.utils.document_processor import (extract_text_from_image,
                                           process_excel_document,
                                           process_pdf_document)
+from app.utils.llm_tools import run_llm_tools
+from app.utils.types import LLMResponse  # Import the LLMResponse type
 from app.utils.whatsapp import (check_whatsapp_token, download_whatsapp_media,
                                 send_whatsapp_message)
 
@@ -215,17 +217,24 @@ def process_whatsapp_message(message, settings):
             text_data = message.get('text', {})
             text_body = text_data.get('body', '')
             
-            # TODO: Implement text message handling
             logger.info(f"Received text message: {text_body}")
+            
             chat_history.add_human_message(text_body)
-            # TODO: update llm service to accest chat history
-            resp = llm_service.query(text_body)
-            chat_history.add_ai_message(resp)
+            # TODO: update llm service to access chat history
+            while True: 
+                resp:LLMResponse = llm_service.format_and_query(chat_history.messages)
+
+                if resp['type'] == "tool_calls":
+                    run_llm_tools(resp['tool_calls'], chat_history, sender_id)
+                elif resp['type'] == "message":
+                    chat_history.add_ai_message(resp['text'])
+                    break
+                
             logger.info(f"LLM response: {resp}")
             chat_history.commit()
             return send_whatsapp_message(
                 sender_id,
-                f"{resp}",
+                f"{resp['text']}",
                 settings
             )
             
@@ -246,8 +255,6 @@ def process_whatsapp_message(message, settings):
                 
                 # Process the image for bill information
                 try:
-                    from app.utils.document_processor import \
-                        extract_text_from_image
 
                     # Extract text from the image
                     extracted_text = extract_text_from_image(file_path)
