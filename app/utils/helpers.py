@@ -1,5 +1,6 @@
+import datetime
 import logging
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 from langchain_core.messages import (AIMessage, BaseMessage, HumanMessage,
@@ -35,7 +36,7 @@ def get_ttl_key(ttl_seconds: Optional[int] = 300) -> Dict:
     Returns a dictionary with a TTL key for Firebase database.
     The key is 'expires_at' and the value is a Unix timestamp in seconds.
     """
-    return {"expires_at": datetime.now() + timedelta(seconds=ttl_seconds)}
+    return {"expires_at": datetime.now(UTC) + timedelta(seconds=ttl_seconds)}
 
     
     
