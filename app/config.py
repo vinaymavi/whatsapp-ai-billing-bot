@@ -39,10 +39,9 @@ class Settings(BaseSettings):
     gcp_credentials_path: str = Field(alias="GCP_CREDENTIALS_PATH")
     
     # Firestore Settings
-    firestore_collection_users: str = Field(default="users", alias="FIRESTORE_COLLECTION_USERS")
-    firestore_collection_bills: str = Field(default="bills", alias="FIRESTORE_COLLECTION_BILLS")
-    firestore_collection_transactions: str = Field(default="transactions", alias="FIRESTORE_COLLECTION_TRANSACTIONS")
-    
+    firestore_collection_chat_history: str = Field(default="chat_history", alias="FIRESTORE_COLLECTION_CHAT_HISTORY")
+    firestore_collection_processed_messages: str = Field(default="processed_messages", alias="FIRESTORE_COLLECTION_PROCESSED_MESSAGES")
+
     # Pinecone Settings
     pinecone_api_key: str = Field(alias="PINECONE_API_KEY")
     pinecone_environment: str = Field(alias="PINECONE_ENVIRONMENT")

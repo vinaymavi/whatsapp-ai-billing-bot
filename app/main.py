@@ -19,6 +19,7 @@ from app.services.ai_service import (analyze_text_with_openai,
                                      generate_bill_summary)
 from app.services.firebase_chat_history import FirebaseChatHistory
 from app.services.llm_service import llm_service
+from app.services.processed_messages import check_message_status_and_save
 from app.utils.document_processor import (extract_text_from_image,
                                           process_excel_document,
                                           process_pdf_document)
@@ -208,6 +209,11 @@ def process_whatsapp_message(message, settings):
         message_type = message.get('type')
         sender_id = message.get('from')
         timestamp = message.get('timestamp')
+        # Check if message is already processed
+        if check_message_status_and_save(message_id):
+            logger.info(f"Message {message_id} is already processed.")
+            return
+
         chat_history = FirebaseChatHistory(sender_id)
         # Log the receipt of message
         logger.info(f"Processing message from {sender_id}, type: {message_type}, id: {message_id}")
