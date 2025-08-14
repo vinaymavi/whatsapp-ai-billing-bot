@@ -44,7 +44,6 @@ class Settings(BaseSettings):
 
     # Pinecone Settings
     pinecone_api_key: str = Field(alias="PINECONE_API_KEY")
-    pinecone_environment: str = Field(alias="PINECONE_ENVIRONMENT")
     pinecone_index_name: str = Field(alias="PINECONE_INDEX_NAME")
     
     model_config = {

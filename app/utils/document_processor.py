@@ -12,45 +12,31 @@ import tempfile
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from PyPDF2 import PdfReader
+
 logger = logging.getLogger(__name__)
 
-def process_pdf_document(file_path: str, sender_id: str, settings) -> Dict[str, Any]:
+def process_pdf_document(file_path: str) -> Dict[str, Any]:
     """
-    Process a PDF document to extract billing information.
+    Process a PDF document to extract text information.
     
     Args:
         file_path (str): Path to the PDF file
-        sender_id (str): The sender's WhatsApp ID
-        settings: Application settings
-        
     Returns:
-        Dict[str, Any]: Extracted billing information
+        Dict[str, Any]: Extracted text information
     """
     try:
-        # You would implement PDF processing here
-        # This could involve:
-        # 1. Using PyPDF2, pdf2image, or a similar library to read the PDF
-        # 2. Using OCR (e.g., pytesseract) if needed to extract text from images
-        # 3. Using OpenAI to analyze the extracted text for billing information
-        # 4. Returning the structured billing data
-        
-        logger.info(f"Processing PDF document: {file_path}")
-        
-        # Example placeholder result
-        result = {
+        pdf_reader = PdfReader(file_path)
+        text = ""
+        for page in pdf_reader.pages:
+            text += page.extract_text() + "\n"
+
+        logger.info(f"Extracted text from PDF:\n{text} \n **************************\n")
+
+        return {
             "processed": True,
-            "file_path": file_path,
-            "sender_id": sender_id,
-            "extracted_data": {
-                "detected_type": "bill",
-                "items": [],
-                "total": 0.0,
-                "date": "",
-                "vendor": ""
-            }
+            "text": text
         }
-        
-        return result
         
     except Exception as e:
         logger.error(f"Error processing PDF document: {str(e)}")

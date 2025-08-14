@@ -17,6 +17,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import Settings, get_settings
 from app.services.ai_service import (analyze_text_with_openai,
                                      generate_bill_summary)
+from app.services.document_creator import DocumentCreator
 from app.services.firebase_chat_history import FirebaseChatHistory
 from app.services.llm_service import llm_service
 from app.services.processed_messages import check_message_status_and_save
@@ -336,7 +337,7 @@ def process_whatsapp_message(message, settings):
                 # Process based on document type
                 if document_mime == 'application/pdf':
                     # Process PDF document (e.g., extract bill information)
-                    bill_data = process_pdf_document(file_path, sender_id, settings)
+                    bill_data = DocumentCreator.create_document_from_pdf(file_path)
                     
                     # Send a response back to the user
                     if bill_data.get("processed", False):
