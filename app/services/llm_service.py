@@ -16,6 +16,7 @@ from langchain_core.messages import BaseMessage
 from langchain_core.prompts import ChatPromptTemplate
 # Import supported LangChain LLMs here
 from langchain_openai import ChatOpenAI
+from pydantic import BaseModel
 
 from app.utils.llm_tools import delete_context  # Import the tool
 from app.utils.prompt import prompt_v1  # Import the prompt template
@@ -34,9 +35,21 @@ class LLMService:
     def __init__(self):
         self.provider = os.getenv("LLM_PROVIDER", "openai").lower()
         self.model_name = os.getenv("OPENAI_MODEL", "gpt-4.1-nano")
+        self.llm_with_tools = self._get_llm_instance_with_tools()
         self.llm = self._get_llm_instance()
 
     def _get_llm_instance(self) -> BaseChatModel:
+            """
+            Returns an LLM instance based on the provider.
+            Extend this method to support more providers.
+            """
+            if self.provider == "openai":
+                # Reads OpenAI API key from env var OPENAI_API_KEY
+                return ChatOpenAI(model=self.model_name, temperature=0.7, max_completion_tokens=500)
+            # Add more providers here as needed
+            raise ValueError(f"Unsupported LLM provider: {self.provider}")
+        
+    def _get_llm_instance_with_tools(self) -> BaseChatModel:
         """
         Returns an LLM instance based on the provider.
         Extend this method to support more providers.
@@ -53,7 +66,7 @@ class LLMService:
         """
         logger.info(f"Generating response using {self.provider} provider with model {self.model_name}")
         logger.info(f"Prompt: {prompt}")
-        resp =  self.llm.invoke(prompt, **kwargs)
+        resp =  self.llm_with_tools.invoke(prompt, **kwargs)
         logger.info(f"{resp}")
         return self._send_resp(resp)
     
@@ -91,6 +104,12 @@ class LLMService:
         template = ChatPromptTemplate(messages=messages)
         return self.query(template.format())
 
+    def query_with_structured_output(self, messages: str, structure: BaseModel):
+        structured_llm = self.llm.with_structured_output(structure)
+
+        resp = structured_llm.invoke(messages)
+        logger.info(f"Structured response: {resp}")
+        return resp
 
 # Singleton instance for app-wide use
 llm_service = LLMService()

@@ -17,10 +17,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import Settings, get_settings
 from app.services.ai_service import (analyze_text_with_openai,
                                      generate_bill_summary)
-from app.services.document_creator import DocumentCreator
 from app.services.firebase_chat_history import FirebaseChatHistory
 from app.services.llm_service import llm_service
 from app.services.processed_messages import check_message_status_and_save
+from app.services.vectordb_document_creator import DocumentCreator
 from app.utils.document_processor import (extract_text_from_image,
                                           process_excel_document,
                                           process_pdf_document)
