@@ -1,4 +1,5 @@
 """
+@Deprecated No longer used
 AI Service Module
 
 This module contains utilities for using OpenAI's API to analyze and extract information

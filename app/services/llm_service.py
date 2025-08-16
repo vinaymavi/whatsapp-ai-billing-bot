@@ -18,15 +18,14 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from pydantic import BaseModel
 
-from app.utils.llm_tools import delete_context  # Import the tool
+from app.utils.llm_tools import llm_tools  # Import the tool
 from app.utils.prompt import prompt_v1  # Import the prompt template
 from app.utils.types import LLMResponse  # Import the LLMResponse type
 
 logger = logging.getLogger(__name__)
 
 
-class LLMService:
-    tools = [delete_context]
+class LLMService:    
 
     """
     LLMService dynamically selects and initializes an LLM instance
@@ -34,7 +33,7 @@ class LLMService:
     """
     def __init__(self):
         self.provider = os.getenv("LLM_PROVIDER", "openai").lower()
-        self.model_name = os.getenv("OPENAI_MODEL", "gpt-4.1-nano")
+        self.model_name = os.getenv("OPENAI_MODEL", "gpt-5-mini")
         self.llm_with_tools = self._get_llm_instance_with_tools()
         self.llm = self._get_llm_instance()
 
@@ -45,9 +44,10 @@ class LLMService:
             """
             if self.provider == "openai":
                 # Reads OpenAI API key from env var OPENAI_API_KEY
-                return ChatOpenAI(model=self.model_name, temperature=0.7, max_completion_tokens=500)
+                return ChatOpenAI(model=self.model_name, max_completion_tokens=1000)
             # Add more providers here as needed
             raise ValueError(f"Unsupported LLM provider: {self.provider}")
+        
         
     def _get_llm_instance_with_tools(self) -> BaseChatModel:
         """
@@ -56,7 +56,7 @@ class LLMService:
         """
         if self.provider == "openai":
             # Reads OpenAI API key from env var OPENAI_API_KEY
-            return ChatOpenAI(model=self.model_name, temperature=0.7, max_completion_tokens=500).bind_tools(self.tools)
+            return ChatOpenAI(model=self.model_name, max_completion_tokens=1000).bind_tools(llm_tools)
         # Add more providers here as needed
         raise ValueError(f"Unsupported LLM provider: {self.provider}")
 
@@ -93,7 +93,7 @@ class LLMService:
             text=str(resp)
         )
 
-    def query(self, prompt: str, **kwargs) -> LLMResponse:
+    def query(self, prompt: List[BaseMessage], **kwargs) -> LLMResponse:
         """
         Query the LLM with a specific prompt.
         """       
@@ -101,8 +101,7 @@ class LLMService:
         return self._generate(prompt, **kwargs)
     
     def format_and_query(self, messages:List[BaseMessage]) -> LLMResponse:
-        template = ChatPromptTemplate(messages=messages)
-        return self.query(template.format())
+        return self.query(messages)
 
     def query_with_structured_output(self, messages: str, structure: BaseModel):
         structured_llm = self.llm.with_structured_output(structure)

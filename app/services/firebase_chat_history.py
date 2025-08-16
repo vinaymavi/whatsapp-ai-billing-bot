@@ -3,7 +3,7 @@ from typing import Dict, List
 
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.messages import (AIMessage, BaseMessage, HumanMessage,
-                                     SystemMessage, ToolMessage)
+                                     SystemMessage, ToolCall, ToolMessage)
 
 from app.services.db_service import FirestoreService, db_service
 from app.utils.helpers import langchain_msg_to_dict, list_to_langchain_msg
@@ -53,8 +53,8 @@ class FirebaseChatHistory(BaseChatMessageHistory):
         human_msg = HumanMessage(msg)
         self.add_message(human_msg)
     
-    def add_ai_message(self, msg:str):
-        self.add_message(AIMessage(msg))
+    def add_ai_message(self, msg:str, tool_calls:list[ToolCall]=[]):
+        self.add_message(AIMessage(msg, tool_calls=tool_calls))
         
     def add_tool_message(self,msg:str, tool_call_id:str):
         self.add_message(ToolMessage(content=msg, tool_call_id=tool_call_id))

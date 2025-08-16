@@ -1,9 +1,11 @@
 import logging
 from typing import Any, Dict, List, Optional
 
-from langchain_core.tools import InjectedToolArg, tool
+from langchain_core.documents import Document
+from langchain_core.tools import tool
 
 from app.services.db_service import db_service
+from app.services.vector_db import vdb
 
 logger = logging.getLogger(__name__)
 DB_COLLECTION_NAME = 'chat_history'
@@ -24,10 +26,29 @@ def delete_context(user_id: str) -> str:
 
     return "Current discussion context has been deleted from DB. We can send leaving greeting to the user."
 
+@tool
+def query_for_invoices(query: str) -> List[Document]:
+    """
+    User will query the invoices in human terms. 
+    Examples: 
+    Give me my GCP invoices 
+    Give me my Royal enfield invoices 
+    Give me my toady invoices 
+    Give me my invoices
+    
+    Anything that suggest about the invoice to search.
+    """
+    logger.info(f"Searching vector DB for query: {query}")
+    results = vdb.search(query)
+    logger.info(f"Found {len(results)} documents")
+    return f"Found {len(results)} documents matching your query. here is the results: ```{results}```"
 
 functions = {
-    "delete_context": delete_context
+    "delete_context": delete_context,
+    "query_for_invoices": query_for_invoices
 }
+
+llm_tools:List[Any] = [delete_context, query_for_invoices]
 
 
 def run_llm_tools(tools:List[Dict[str, Any]], history:Any, user_id: str) -> Any:

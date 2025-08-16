@@ -29,8 +29,8 @@ from app.utils.types import LLMResponse  # Import the LLMResponse type
 from app.utils.whatsapp import (check_whatsapp_token, download_whatsapp_media,
                                 send_whatsapp_message)
 
-# Configure logging based on settings
 settings = get_settings()
+
 logging.basicConfig(
     level=getattr(logging, settings.log_level),
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -232,7 +232,8 @@ def process_whatsapp_message(message, settings):
                 resp:LLMResponse = llm_service.format_and_query(chat_history.messages)
 
                 if resp['type'] == "tool_calls":
-                    run_llm_tools(resp['tool_calls'], chat_history, sender_id)
+                    chat_history.add_ai_message('', resp['tool_calls'])
+                    chat_history =run_llm_tools(resp['tool_calls'], chat_history, sender_id)
                 elif resp['type'] == "message":
                     chat_history.add_ai_message(resp['text'])
                     break
