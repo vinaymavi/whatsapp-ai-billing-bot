@@ -36,7 +36,7 @@ class VectorDB:
     def delete_document(self, doc_ids: List[str]):
         self.vector_store.delete(doc_ids)
 
-    def search(self, query: str, top_k: int = 5):
+    def search(self, query: str, top_k: int = 100):
         return self.vector_store.similarity_search(query, k=top_k)
 
 vdb = VectorDB()
