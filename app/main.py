@@ -342,7 +342,9 @@ def process_whatsapp_message(message, settings):
                     
                     # Send a response back to the user
                     if bill_data.get("processed", False):
-                        response_msg = "I've received your PDF document and processed it."
+                        summary = bill_data.get("page_content", "")                        
+
+                        response_msg = f"I've received your PDF document and processed it.\n*Summary:* {summary}"
                         # You could add more details from the processed data here
                     else:
                         response_msg = "I received your document but had trouble processing it."

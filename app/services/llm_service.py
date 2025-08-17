@@ -44,7 +44,7 @@ class LLMService:
             """
             if self.provider == "openai":
                 # Reads OpenAI API key from env var OPENAI_API_KEY
-                return ChatOpenAI(model=self.model_name, max_completion_tokens=1000)
+                return ChatOpenAI(model=self.model_name, max_completion_tokens=2000)
             # Add more providers here as needed
             raise ValueError(f"Unsupported LLM provider: {self.provider}")
         
@@ -56,7 +56,7 @@ class LLMService:
         """
         if self.provider == "openai":
             # Reads OpenAI API key from env var OPENAI_API_KEY
-            return ChatOpenAI(model=self.model_name, max_completion_tokens=1000).bind_tools(llm_tools)
+            return ChatOpenAI(model=self.model_name, max_completion_tokens=2000).bind_tools(llm_tools)
         # Add more providers here as needed
         raise ValueError(f"Unsupported LLM provider: {self.provider}")
 

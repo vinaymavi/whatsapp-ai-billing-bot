@@ -20,10 +20,12 @@ class DocumentCreator:
 
         if not pdf_info.get("processed"):
             return pdf_info
-        llm_resp:VectorDBInvoiceData = llm_service.query_with_structured_output(pdf_info.get("text",""),VectorDBInvoiceData)
+        llm_resp:VectorDBInvoiceData = llm_service.query_with_structured_output(pdf_info.get("text",""),VectorDBInvoiceData)        
         # Create a Document object from the extracted text
+        page_content = f"Provider: {llm_resp.provider}, Invoice Date: {llm_resp.invoice_date}, Invoice Items: {llm_resp.invoice_items}, Invoice Category: {llm_resp.invoice_category}"
+        pdf_info['page_content'] = page_content
         document = Document(
-            page_content=llm_resp.summary,
+            page_content=page_content,
             metadata= {
                 "source": pdf_path,                
                 "invoice_id": llm_resp.invoice_id,
@@ -33,7 +35,8 @@ class DocumentCreator:
                 "customer_address": llm_resp.customer_address,
                 "amount": llm_resp.amount,
                 "status": llm_resp.status,
-                "provider": llm_resp.provider
+                "provider": llm_resp.provider,
+                "summary": llm_resp.summary
             }
         )
 

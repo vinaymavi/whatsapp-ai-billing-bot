@@ -29,14 +29,16 @@ def delete_context(user_id: str) -> str:
 @tool
 def query_for_invoices(query: str) -> List[Document]:
     """
-    User will query the invoices in human terms. 
-    Examples: 
-    Give me my GCP invoices 
-    Give me my Royal enfield invoices 
-    Give me my toady invoices 
-    Give me my invoices
+    User will be able to search/find/query the invoides by 
     
-    Anything that suggest about the invoice to search.
+    - Invoice provider 
+    - Invoice Items
+    - Invoice by month and year
+    - Invoice Category
+    
+    Vector DB is storing information in following format. 
+
+    "Provider: Acme Inc. Date: 2024-06-15(YYYY-MM-DD) Item: Laptop Model XYZ Category: Electronics"
     """
     logger.info(f"Searching vector DB for query: {query}")
     results = vdb.search(query)
