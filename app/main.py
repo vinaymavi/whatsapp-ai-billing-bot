@@ -228,8 +228,8 @@ def process_whatsapp_message(message, settings):
             text_body = text_data.get('body', '')
             
             logger.info(f"Received text message: {text_body}")
-            
-            chat_history.add_human_message(text_body)
+
+            chat_history.add_human_message(text_body, message_id)
             # TODO: update llm service to access chat history
             while True: 
                 resp:LLMResponse = llm_service.format_and_query(chat_history.messages)

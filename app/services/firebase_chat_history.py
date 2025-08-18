@@ -49,8 +49,8 @@ class FirebaseChatHistory(BaseChatMessageHistory):
         if not doc_dict:
             self._create_empty_message_list()
 
-    def add_human_message(self, msg:str):
-        human_msg = HumanMessage(msg)
+    def add_human_message(self, msg:str, whatsapp_msg_id:str = None):
+        human_msg = HumanMessage(f'{msg}  |  latest_whatsapp_msg_id={whatsapp_msg_id}')
         self.add_message(human_msg)
     
     def add_ai_message(self, msg:str, tool_calls:list[ToolCall]=[]):

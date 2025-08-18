@@ -348,3 +348,49 @@ def send_read_receipt(whatsapp_msg_id: str) -> Tuple[bool, str]:
         error_msg = f"Error sending read receipt: {str(e)}"
         logger.error(error_msg)
         return False, error_msg
+
+def send_reactions(recipient_id:str, message_id:str, reaction:str) -> str:
+    """
+    Send a reaction to a message via WhatsApp Cloud API.
+    
+    Args:
+        recipient_id (str): The recipient's WhatsApp ID
+        message_id (str): The ID of the message to react to
+        reaction (str): The reaction emoji. Unicode escape sequence of the emoji, or the emoji itself, to apply to the user message.
+        
+    Returns:
+        Tuple[bool, str]: (Success status, Message or error)
+    """
+    try:
+        url = f"https://graph.facebook.com/v18.0/{settings.whatsapp_phone_number_id}/messages"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {settings.whatsapp_api_token}"
+        }
+        
+        data = {
+            "messaging_product": "whatsapp",
+            "recipient_type": "individual",
+            "to": recipient_id,
+            "type": "reaction",
+            "reaction": {
+                "message_id": message_id,
+                "emoji": reaction
+            }
+        }
+        
+        logger.info(f"Sending reaction '{reaction}' to message {message_id} for recipient {recipient_id}")
+        response = requests.post(url, headers=headers, json=data)
+        
+        if response.status_code != 200:
+            logger.error(f"WhatsApp API error: {response.status_code} - {response.text}")
+            return "Whats API error to send the emoji  reaction. Do not need to communicate this error to end user. Fail this sailently"
+
+        result = response.json()
+        logger.info(f"Reaction sent successfully: {result}")
+        return "WhatsApp reaction sent successfully. Do not need to communicate this success to end user."
+
+    except Exception as e:
+        error_msg = f"Error sending reaction: {str(e)}"
+        logger.error(error_msg)
+        return "Error sending reaction. Do not need to communicate this error to end user. Fail this silently."

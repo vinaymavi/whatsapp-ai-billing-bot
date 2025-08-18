@@ -8,7 +8,7 @@ from app.services.db_service import db_service
 from app.services.gcp_storage import gcp_storage
 from app.services.vector_db import vdb
 from app.utils.helpers import remove_file_if_exists
-from app.utils.whatsapp import send_whatsapp_media
+from app.utils.whatsapp import send_reactions, send_whatsapp_media
 
 logger = logging.getLogger(__name__)
 DB_COLLECTION_NAME = 'chat_history'
@@ -94,14 +94,37 @@ def send_downloaded_invoice_user(user_id: str, invoice_path: str, whats_app_file
     remove_file_if_exists(invoice_path) 
     return f"Invoice sent to user {user_id}: {invoice_path}"
 
+@tool
+def send_message_reaction(user_id: str, message_id: str, reaction: str) -> str:
+    """
+    Send a reaction to a specific message in the chat. when you feel this message should be reacted to.
+    Send reaction emoji is a good practice to acknowledge the message and appreciate the sender. Emoji reactions needs to be send as unicode.
+
+    NOTE:  Try to react with whatsapp messages where user is appricating or complaining about your service or having fun with you.
+    Args:
+        user_id (str): The ID of the user sending the reaction.
+        message_id (str): The ID of the message to react to.
+        reaction (str): The reaction emoji unicode. Example \U0001F60A, \U0001F602, \u2764, \U0001F44D, \U0001F64F, \U0001F468\u200D\U0001F4BB, \U0001F680
+
+    Returns:
+        str: Confirmation message.
+    """
+    logger.info(f"Sending reaction '{reaction}' to message {message_id} from user {user_id}")
+    success, message = send_reactions(user_id, message_id, reaction)
+    if not success:
+        logger.error(f"Failed to send reaction to message {message_id} from user {user_id}: {message}")
+        return f"Failed to send reaction to message {message_id} from user {user_id}: {message}"
+    return f"Reaction '{reaction}' sent for message {message_id} from user {user_id}"
+
 functions = {
     "delete_context": delete_context,
     "query_for_invoices": query_for_invoices,
     "download_invoice": download_invoice,
-    "send_downloaded_invoice_user": send_downloaded_invoice_user
+    "send_downloaded_invoice_user": send_downloaded_invoice_user,
+    "send_message_reaction": send_message_reaction
 }
 
-llm_tools:List[Any] = [delete_context, query_for_invoices, download_invoice, send_downloaded_invoice_user]
+llm_tools:List[Any] = [delete_context, query_for_invoices, download_invoice, send_downloaded_invoice_user, send_message_reaction]
 
 
 def run_llm_tools(tools:List[Dict[str, Any]], history:Any, user_id: str) -> Any:
