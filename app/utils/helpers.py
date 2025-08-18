@@ -1,11 +1,16 @@
 import datetime
 import logging
+import os
 import uuid
 from datetime import UTC, datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 from langchain_core.messages import (AIMessage, BaseMessage, HumanMessage,
                                      SystemMessage, ToolMessage)
+
+from app.config import get_settings
+
+settings = get_settings()
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +63,22 @@ def generate_temp_file_path(extension: str) -> str:
     Returns:
         str: The temporary file path.
     """
-    return f"/tmp/{uuid.uuid4()}.{extension}"
+    temp_file_location = settings.temp_file_path
+    return f"{temp_file_location}/{uuid.uuid4()}.{extension}"
 
-    
+
+def remove_file_if_exists(file_path: str) -> None:
+    """
+    Removes a file if it exists.
+
+    Args:
+        file_path (str): The path to the file to remove.
+    """
+    try:
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            logger.info(f"Removed file: {file_path}")
+        else:
+            logger.warning(f"File not found, not removed: {file_path}")
+    except Exception as e:
+        logger.error(f"Error removing file {file_path}: {str(e)}")

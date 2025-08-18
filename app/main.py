@@ -22,8 +22,8 @@ from app.services.gcp_storage import gcp_storage
 from app.services.llm_service import llm_service
 from app.services.processed_messages import check_message_status_and_save
 from app.services.vectordb_document_creator import DocumentCreator
-from app.utils.document_processor import (extract_text_from_image,
-                                          process_excel_document)
+from app.utils.document_processor import extract_text_from_image
+from app.utils.helpers import remove_file_if_exists
 from app.utils.llm_tools import run_llm_tools
 from app.utils.types import LLMResponse  # Import the LLMResponse type
 from app.utils.whatsapp import (check_whatsapp_token, download_whatsapp_media,
@@ -355,19 +355,8 @@ def process_whatsapp_message(message, settings):
                         response_msg = "I received your document but had trouble processing it."
                     
                     send_whatsapp_message(sender_id, response_msg, settings)
-                    
-                elif document_mime in ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']:
-                    # Process Excel document
-                    bill_data = process_excel_document(file_path, sender_id, settings)
-                    
-                    # Send a response back to the user
-                    if bill_data.get("processed", False):
-                        response_msg = "I've received your Excel document and processed it."
-                    else:
-                        response_msg = "I received your document but had trouble processing it."
-                        
-                    send_whatsapp_message(sender_id, response_msg, settings)
-                    
+                    # Remove temporary files
+                    remove_file_if_exists(file_path)
                 else:
                     # Handle other document types
                     logger.info(f"Unsupported document type: {document_mime}")

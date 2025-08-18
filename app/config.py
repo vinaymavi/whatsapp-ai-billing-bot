@@ -46,7 +46,10 @@ class Settings(BaseSettings):
     # Pinecone Settings
     pinecone_api_key: str = Field(alias="PINECONE_API_KEY")
     pinecone_index_name: str = Field(alias="PINECONE_INDEX_NAME")
-    
+
+    # Temporary Files
+    temp_file_path: str = Field(default="/tmp", alias="TEMP_FILE_PATH")
+
     model_config = {
         "env_file": ".env",
         "env_file_encoding": "utf-8",

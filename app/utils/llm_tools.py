@@ -7,6 +7,7 @@ from langchain_core.tools import tool
 from app.services.db_service import db_service
 from app.services.gcp_storage import gcp_storage
 from app.services.vector_db import vdb
+from app.utils.helpers import remove_file_if_exists
 from app.utils.whatsapp import send_whatsapp_media
 
 logger = logging.getLogger(__name__)
@@ -89,6 +90,8 @@ def send_downloaded_invoice_user(user_id: str, invoice_path: str, whats_app_file
     if not success:
         logger.error(f"Failed to send invoice to user {user_id}: {message}")
         return f"Failed to send invoice to user {user_id}: {message}"
+    # Remove temporary files
+    remove_file_if_exists(invoice_path) 
     return f"Invoice sent to user {user_id}: {invoice_path}"
 
 functions = {

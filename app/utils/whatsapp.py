@@ -65,7 +65,7 @@ def download_whatsapp_media(
     """
     try:
         # Create the media directory if it doesn't exist
-        media_dir = Path("media") / media_type
+        media_dir = Path(settings.temp_file_path) / media_type
         os.makedirs(media_dir, exist_ok=True)
         
         # Step 1: Get the media URL
