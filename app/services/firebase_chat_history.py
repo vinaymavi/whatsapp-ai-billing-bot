@@ -73,7 +73,7 @@ class FirebaseChatHistory(BaseChatMessageHistory):
             strategy="last",
             include_system=True,
             start_on="human",
-            max_tokens=20000,
+            max_tokens=18000,
             token_counter=count_tokens_approximately
             )
         
