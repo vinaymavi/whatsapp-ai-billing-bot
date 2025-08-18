@@ -3,7 +3,9 @@ from typing import Dict, List
 
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.messages import (AIMessage, BaseMessage, HumanMessage,
-                                     SystemMessage, ToolCall, ToolMessage)
+                                     SystemMessage, ToolCall, ToolMessage,
+                                     trim_messages)
+from langchain_core.messages.utils import count_tokens_approximately
 
 from app.services.db_service import FirestoreService, db_service
 from app.utils.helpers import langchain_msg_to_dict, list_to_langchain_msg
@@ -64,12 +66,23 @@ class FirebaseChatHistory(BaseChatMessageHistory):
 
     def _create_empty_message_list(self):
         FirebaseChatHistory.db.write_with_ttl(DB_COLLECTION_NAME, self.user_id, {"messages": []})
-
+    
+    def _trim_messages(self):
+        self.messages = trim_messages(
+            self.messages, 
+            strategy="last",
+            include_system=True,
+            start_on="human",
+            max_tokens=20000,
+            token_counter=count_tokens_approximately
+            )
+        
     def _write(self):
         # Write messages to the database when document exists
         doc_dict = self.db.read(DB_COLLECTION_NAME, self.user_id)
         if not doc_dict:
             self.logger.warning(f"No document found for user {self.user_id}. Not able to commit")
             return
+        self._trim_messages()
         _list = langchain_msg_to_dict(self.messages)
         self.db.write_with_ttl(DB_COLLECTION_NAME,self.user_id, {"messages": _list})

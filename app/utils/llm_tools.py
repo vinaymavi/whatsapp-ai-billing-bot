@@ -52,8 +52,8 @@ def query_for_invoices(query: str) -> List[Document]:
     results = vdb.search(query)
    
     logger.info(f"Found {len(results)} documents")
-   
-    return f"Found {len(results)} documents matching your query. here is the results: ```{results}```"
+    page_content:List[str] = [f'{doc.page_content}, invoice_cloud_location:{doc.metadata.get("gcp_blob_path")}' for doc in results]
+    return f"Found {len(results)} documents matching your query. Here is the content: ```{page_content}```"
 
 @tool
 def download_invoice(gcp_blob_path: str) -> str:
