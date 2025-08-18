@@ -110,11 +110,8 @@ def send_message_reaction(user_id: str, message_id: str, reaction: str) -> str:
         str: Confirmation message.
     """
     logger.info(f"Sending reaction '{reaction}' to message {message_id} from user {user_id}")
-    success, message = send_reactions(user_id, message_id, reaction)
-    if not success:
-        logger.error(f"Failed to send reaction to message {message_id} from user {user_id}: {message}")
-        return f"Failed to send reaction to message {message_id} from user {user_id}: {message}"
-    return f"Reaction '{reaction}' sent for message {message_id} from user {user_id}"
+    message = send_reactions(user_id, message_id, reaction)
+    return message
 
 functions = {
     "delete_context": delete_context,
