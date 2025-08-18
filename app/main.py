@@ -27,6 +27,7 @@ from app.utils.helpers import remove_file_if_exists
 from app.utils.llm_tools import run_llm_tools
 from app.utils.types import LLMResponse  # Import the LLMResponse type
 from app.utils.whatsapp import (check_whatsapp_token, download_whatsapp_media,
+                                send_read_receipt, send_typing_indicator,
                                 send_whatsapp_message)
 
 settings = get_settings()
@@ -214,7 +215,9 @@ def process_whatsapp_message(message, settings):
         if check_message_status_and_save(message_id):
             logger.info(f"Message {message_id} is already processed.")
             return
-
+        #  Send typing indicator
+        send_read_receipt(message_id)
+        send_typing_indicator(message_id)
         chat_history = FirebaseChatHistory(sender_id)
         # Log the receipt of message
         logger.info(f"Processing message from {sender_id}, type: {message_type}, id: {message_id}")

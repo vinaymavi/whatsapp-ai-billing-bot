@@ -274,3 +274,77 @@ def send_whatsapp_media(
         error_msg = f"Error sending media: {str(e)}"
         logger.error(error_msg)
         return False, error_msg
+
+def send_typing_indicator(whatsapp_msg_id: str) -> Tuple[bool, str]:
+    """
+    Send a typing indicator via WhatsApp Cloud API.
+    """
+    try:
+        url = f"https://graph.facebook.com/v18.0/{settings.whatsapp_phone_number_id}/messages"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {settings.whatsapp_api_token}"
+        }
+
+        data = {
+                "messaging_product": "whatsapp",
+                "status": "read",
+                "message_id": whatsapp_msg_id,
+                "typing_indicator": {
+                    "type": "text"
+                }
+                }   
+
+        logger.info(f"Sending typing indicator via WhatsApp API")
+        response = requests.post(url, headers=headers, json=data)
+
+        # Log the response for debugging
+        if response.status_code != 200:
+            logger.error(f"WhatsApp API error: {response.status_code} - {response.text}")
+
+        response.raise_for_status()
+
+        result = response.json()
+        message_id = result.get('messages', [{}])[0].get('id')
+
+        logger.info(f"Typing indicator sent ID: {message_id}")
+        return True, message_id
+
+    except Exception as e:
+        error_msg = f"Error sending typing indicator: {str(e)}"
+        logger.error(error_msg)
+        return False, error_msg
+
+def send_read_receipt(whatsapp_msg_id: str) -> Tuple[bool, str]:
+    """
+    Send a read receipt via WhatsApp Cloud API.
+    """
+    try:
+        url = f"https://graph.facebook.com/v18.0/{settings.whatsapp_phone_number_id}/messages"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {settings.whatsapp_api_token}"
+        }
+
+        data = {
+            "messaging_product": "whatsapp",
+            "status": "read",
+            "message_id": whatsapp_msg_id
+        }
+
+        logger.info(f"Sending read receipt for message {whatsapp_msg_id} via WhatsApp API")
+        response = requests.post(url, headers=headers, json=data)
+
+        # Log the response for debugging
+        if response.status_code != 200:
+            logger.error(f"WhatsApp API error: {response.status_code} - {response.text}")
+
+        response.raise_for_status()
+        
+        logger.info(f"Read receipt sent for message {whatsapp_msg_id}")
+        return True, whatsapp_msg_id
+
+    except Exception as e:
+        error_msg = f"Error sending read receipt: {str(e)}"
+        logger.error(error_msg)
+        return False, error_msg
