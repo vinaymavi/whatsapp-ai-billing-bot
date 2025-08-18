@@ -6,14 +6,17 @@ including downloading media, sending messages, and processing webhook events.
 """
 
 import logging
+import mimetypes
 import os
 from pathlib import Path
 from typing import Optional, Tuple
 
 import requests
 
-logger = logging.getLogger(__name__)
+from app.config import get_settings
 
+logger = logging.getLogger(__name__)
+settings = get_settings()
 def check_whatsapp_token(settings) -> bool:
     """
     Check if the WhatsApp API token is valid.
@@ -200,5 +203,74 @@ def send_whatsapp_message(
         
     except Exception as e:
         error_msg = f"Error sending message: {str(e)}"
+        logger.error(error_msg)
+        return False, error_msg
+
+# send whatsapp media 
+
+def send_whatsapp_media(
+    recipient_id: str,
+    local_file_path: str,
+    whats_app_file_caption:str =  "File caption",
+    whats_app_file_name:str =  "File name"
+) -> Tuple[bool, str]:
+    """
+    Send a media message via WhatsApp Cloud API.
+    """
+    try:
+       media_url = f"https://graph.facebook.com/v18.0/{settings.whatsapp_phone_number_id}/media"
+       headers = {
+           "Authorization": f"Bearer {settings.whatsapp_api_token}",
+       }
+
+       mime_type, _ = mimetypes.guess_type(local_file_path) 
+       with open(local_file_path, 'rb') as f:
+           files = {
+               "file": (os.path.basename(local_file_path), f, mime_type),
+           }
+           data = {
+               "messaging_product": "whatsapp",
+               "type": "document"
+           }
+           response = requests.post(media_url, headers=headers, files=files, data=data)
+
+       if response.status_code != 200:
+           logger.error(f"WhatsApp API error: {response.status_code} - {response.text}")
+           return False, response.text
+
+       result = response.json()
+       media_id = result.get('id')
+
+       logger.info(f"Media sent to {recipient_id}, ID: {media_id}")
+       # Send media message
+
+       message_url = f"https://graph.facebook.com/v18.0/{settings.whatsapp_phone_number_id}/messages"
+       headers["Content-Type"] = "application/json"
+       message_data = {
+           "messaging_product": "whatsapp",
+           "recipient_type": "individual",
+           "to": recipient_id,
+           "type": "document",
+           "document": {
+               "id": media_id,
+               'caption': whats_app_file_caption,
+               'filename': whats_app_file_name
+           }
+       }
+
+       response = requests.post(message_url, headers=headers, json=message_data)
+
+       if response.status_code != 200:
+           logger.error(f"WhatsApp API error: {response.status_code} - {response.text}")
+           return False, response.text
+
+       result = response.json()
+       message_id = result.get('messages', [{}])[0].get('id')
+
+       logger.info(f"Media message sent to {recipient_id}, ID: {message_id}")
+       return True, message_id
+
+    except Exception as e:
+        error_msg = f"Error sending media: {str(e)}"
         logger.error(error_msg)
         return False, error_msg

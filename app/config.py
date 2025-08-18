@@ -37,6 +37,7 @@ class Settings(BaseSettings):
     gcp_project_id: str = Field(alias="GCP_PROJECT_ID")
     gcp_location: str = Field(default="us-central1", alias="GCP_LOCATION")
     gcp_credentials_path: str = Field(alias="GCP_CREDENTIALS_PATH")
+    gcp_storage_bucket: str = Field(default="chabot-files", alias="GCP_STORAGE_BUCKET")
     
     # Firestore Settings
     firestore_collection_chat_history: str = Field(default="chat_history", alias="FIRESTORE_COLLECTION_CHAT_HISTORY")

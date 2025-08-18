@@ -1,5 +1,6 @@
 import datetime
 import logging
+import uuid
 from datetime import UTC, datetime, timedelta
 from typing import Any, Dict, List, Optional
 
@@ -50,3 +51,13 @@ def get_ttl_key(ttl_seconds: Optional[int] = 300) -> Dict:
     return {"expires_at": datetime.now(UTC) + timedelta(seconds=ttl_seconds)}
 
 
+def generate_temp_file_path(extension: str) -> str:
+    """
+    Generates a temporary file path for storing downloaded files.
+
+    Returns:
+        str: The temporary file path.
+    """
+    return f"/tmp/{uuid.uuid4()}.{extension}"
+
+    

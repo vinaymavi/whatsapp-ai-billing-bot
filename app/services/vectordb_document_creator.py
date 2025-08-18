@@ -15,7 +15,7 @@ class DocumentCreator:
         pass
 
     @classmethod
-    def create_document_from_pdf(cls, pdf_path: str) -> Dict[str, Any]:
+    def create_document_from_pdf(cls, pdf_path: str, gcp_blob_path: str) -> Dict[str, Any]:
         pdf_info = process_pdf_document(pdf_path)
 
         if not pdf_info.get("processed"):
@@ -27,7 +27,8 @@ class DocumentCreator:
         document = Document(
             page_content=page_content,
             metadata= {
-                "source": pdf_path,                
+                "source": pdf_path,
+                "gcp_blob_path": gcp_blob_path,
                 "invoice_id": llm_resp.invoice_id,
                 "invoice_date": llm_resp.invoice_date,
                 "invoice_category": llm_resp.invoice_category,
@@ -44,5 +45,5 @@ class DocumentCreator:
         )
 
         cls.vdb.add_documents([document])
-        
+        # TODO: Delete local file after indexing
         return pdf_info

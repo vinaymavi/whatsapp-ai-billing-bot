@@ -40,3 +40,4 @@ class VectorDB:
         return self.vector_store.similarity_search(query, k=top_k)
 
 vdb = VectorDB()
+

@@ -18,12 +18,12 @@ from app.config import Settings, get_settings
 from app.services.ai_service import (analyze_text_with_openai,
                                      generate_bill_summary)
 from app.services.firebase_chat_history import FirebaseChatHistory
+from app.services.gcp_storage import gcp_storage
 from app.services.llm_service import llm_service
 from app.services.processed_messages import check_message_status_and_save
 from app.services.vectordb_document_creator import DocumentCreator
 from app.utils.document_processor import (extract_text_from_image,
-                                          process_excel_document,
-                                          process_pdf_document)
+                                          process_excel_document)
 from app.utils.llm_tools import run_llm_tools
 from app.utils.types import LLMResponse  # Import the LLMResponse type
 from app.utils.whatsapp import (check_whatsapp_token, download_whatsapp_media,
@@ -337,8 +337,13 @@ def process_whatsapp_message(message, settings):
             if file_path:
                 # Process based on document type
                 if document_mime == 'application/pdf':
+                    # Upload file to GCP Storage
+                    gcp_blob_path = f"documents/{document_filename}"
+                    gcp_storage.upload_file(file_path, gcp_blob_path)
+
                     # Process PDF document (e.g., extract bill information)
-                    bill_data = DocumentCreator.create_document_from_pdf(file_path)
+                    # Index document in Vector DB
+                    bill_data = DocumentCreator.create_document_from_pdf(file_path, gcp_blob_path)
                     
                     # Send a response back to the user
                     if bill_data.get("processed", False):
