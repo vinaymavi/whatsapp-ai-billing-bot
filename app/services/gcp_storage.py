@@ -14,10 +14,12 @@ class GCPStorage:
 
     def __init__(self):
         try:
-            self.client = storage.Client()
+            self.client = storage.Client.from_service_account_json(
+                settings.gcp_credentials_path
+            )
             self.bucket = self.client.bucket(self.bucket_name)
         except Exception as e:
-            logger.error(f"Something went wrong {e}")
+            logger.error(f"GCP storage initialization fails error: {e}")
 
     def upload_file(self, file_path: str, destination_blob_name: str) -> str:
         try:
@@ -27,7 +29,7 @@ class GCPStorage:
             logger.info(f"File uploaded to {destination_blob_name}")
             return destination_blob_name
         except Exception as e:
-            logger.error(f"Something went wrong {e}")
+            logger.error(f"Error when uploading file to GCS error: {e}")
 
     def read_file(self, blob_name: str) -> bytes:
         try:
@@ -40,7 +42,7 @@ class GCPStorage:
             logger.info(f"File downloaded from {blob_name} to {temp_file_path}")
             return temp_file_path
         except Exception as e:
-            logger.error(f"Something went wrong {e}")
+            logger.error(f"Error when reading file from GCS error: {e}")
 
 
 gcp_storage = GCPStorage()

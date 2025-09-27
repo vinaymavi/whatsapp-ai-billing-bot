@@ -5,8 +5,13 @@ import uuid
 from datetime import UTC, datetime, timedelta
 from typing import Any, Dict, List, Optional
 
-from langchain_core.messages import (AIMessage, BaseMessage, HumanMessage,
-                                     SystemMessage, ToolMessage)
+from langchain_core.messages import (
+    AIMessage,
+    BaseMessage,
+    HumanMessage,
+    SystemMessage,
+    ToolMessage,
+)
 
 from app.config import get_settings
 
@@ -14,36 +19,41 @@ settings = get_settings()
 
 logger = logging.getLogger(__name__)
 
+
 def langchain_msg_to_dict(msgs: List[BaseMessage]) -> List[Dict]:
     result = []
     for msg in msgs:
         msg_dict = {
-            'type': type(msg).__name__.replace('Message', '').lower(),
-            'text': msg.content            
+            "type": type(msg).__name__.replace("Message", "").lower(),
+            "text": msg.content,
         }
-        
-        if hasattr(msg, 'tool_call_id') and msg.tool_call_id is not None:
-            msg_dict['tool_call_id'] = msg.tool_call_id
 
+        if hasattr(msg, "tool_call_id") and msg.tool_call_id is not None:
+            msg_dict["tool_call_id"] = msg.tool_call_id
 
-        if hasattr(msg, 'tool_calls') and msg.tool_calls is not None:
-            msg_dict['tool_calls'] = msg.tool_calls
+        if hasattr(msg, "tool_calls") and msg.tool_calls is not None:
+            msg_dict["tool_calls"] = msg.tool_calls
 
         result.append(msg_dict)
     return result
-    
-def list_to_langchain_msg(_list:List[Dict])->List[BaseMessage] :
-    lang_chain_msgs:List[BaseMessage] = []
-    
+
+
+def list_to_langchain_msg(_list: List[Dict]) -> List[BaseMessage]:
+    lang_chain_msgs: List[BaseMessage] = []
+
     for msg in _list:
-        if msg['type'] == 'human': 
-            lang_chain_msgs.append(HumanMessage(msg['text']))
-        if msg['type'] == 'ai':
-            lang_chain_msgs.append(AIMessage(msg['text'], tool_calls=msg.get('tool_calls', [])))
-        if msg['type'] == 'system': 
-            lang_chain_msgs.append(SystemMessage(msg['text']))
-        if msg['type'] == 'tool': 
-            lang_chain_msgs.append(ToolMessage(msg['text'], tool_call_id=msg.get('tool_call_id', '')))
+        if msg["type"] == "human":
+            lang_chain_msgs.append(HumanMessage(msg["text"]))
+        if msg["type"] == "ai":
+            lang_chain_msgs.append(
+                AIMessage(msg["text"], tool_calls=msg.get("tool_calls", []))
+            )
+        if msg["type"] == "system":
+            lang_chain_msgs.append(SystemMessage(msg["text"]))
+        if msg["type"] == "tool":
+            lang_chain_msgs.append(
+                ToolMessage(msg["text"], tool_call_id=msg.get("tool_call_id", ""))
+            )
 
     return lang_chain_msgs
 
