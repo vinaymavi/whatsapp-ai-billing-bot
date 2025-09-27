@@ -3,6 +3,6 @@ import Header from './Header';
 
 test('renders Header component', () => {
 	render(<Header />);
-	const linkElement = screen.getByText(/My App/i);
+	const linkElement = screen.getByText(/Chat bot admin login/i);
 	expect(linkElement).toBeInTheDocument();
 });

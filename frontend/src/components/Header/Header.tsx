@@ -1,7 +1,7 @@
 export const Header = () => {
     return (
-        <header className="flex items-center bg-blue-600 text-white p-4">
-            <h1 className="text-lg font-bold">My App</h1>
+        <header className="flex items-center justify-center bg-emerald-800  p-4">
+            <h1 className="text-2xl text-neutral-100 uppercase">Chat bot admin login</h1>
         </header>
     );
 };
