@@ -13,10 +13,10 @@ from typing import Optional, Tuple
 
 import requests
 
-from app.config import get_settings
+from app.config import Settings, get_settings
 
 logger = logging.getLogger(__name__)
-settings = get_settings()
+settings: Settings = get_settings()
 
 
 def check_whatsapp_token(settings) -> bool:
@@ -49,7 +49,7 @@ def check_whatsapp_token(settings) -> bool:
 
 
 def download_whatsapp_media(
-    media_id: str, media_type: str, sender_id: str, settings
+    media_id: str, media_type: str, sender_id: str, settings: Settings = settings
 ) -> Optional[str]:
     """
     Download media (image, document, audio) from WhatsApp Cloud API.
@@ -153,7 +153,7 @@ def download_whatsapp_media(
 
 
 def send_whatsapp_message(
-    recipient_id: str, message_text: str, settings
+    recipient_id: str, message_text: str, settings: Settings = settings
 ) -> Tuple[bool, str]:
     """
     Send a text message via WhatsApp Cloud API.

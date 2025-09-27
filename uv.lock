@@ -2266,6 +2266,12 @@ wheels = [
 ]
 
 [[package]]
+name = "uuid"
+version = "1.30"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ce/63/f42f5aa951ebf2c8dac81f77a8edcc1c218640a2a35a03b9ff2d4aa64c3d/uuid-1.30.tar.gz", hash = "sha256:1f87cc004ac5120466f36c5beae48b4c48cc411968eed0eaecd3da82aa96193f", size = 5811, upload-time = "2007-05-26T11:13:24Z" }
+
+[[package]]
 name = "uvicorn"
 version = "0.34.2"
 source = { registry = "https://pypi.org/simple" }
@@ -2442,6 +2448,7 @@ dependencies = [
     { name = "python-dotenv" },
     { name = "python-jose", extra = ["cryptography"] },
     { name = "requests" },
+    { name = "uuid" },
     { name = "uvicorn", extra = ["standard"] },
 ]
 
@@ -2477,6 +2484,7 @@ requires-dist = [
     { name = "python-dotenv", specifier = "==1.1.0" },
     { name = "python-jose", extras = ["cryptography"], specifier = "==3.4.0" },
     { name = "requests", specifier = "==2.32.3" },
+    { name = "uuid", specifier = ">=1.30" },
     { name = "uvicorn", extras = ["standard"], specifier = "==0.34.2" },
 ]
 

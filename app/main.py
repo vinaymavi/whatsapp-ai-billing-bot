@@ -11,21 +11,28 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import uvicorn
-from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
+from fastapi import (
+    BackgroundTasks,
+    Depends,
+    FastAPI,
+    HTTPException,
+    Request,
+    Response,
+    status,
+)
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from jwt import ExpiredSignatureError
 
 from app.api.admin.admin import router as admin_router
 from app.config import Settings, get_settings
 from app.services.ai_service import analyze_text_with_openai, generate_bill_summary
 from app.services.firebase_chat_history import FirebaseChatHistory
-from app.services.gcp_storage import gcp_storage
 from app.services.llm_service import llm_service
 from app.services.processed_messages import check_message_status_and_save
-from app.services.vectordb_document_creator import DocumentCreator
+from app.utils.background_job import DocumentJob, process_document
 from app.utils.document_processor import extract_text_from_image
 from app.utils.global_logging import get_logger
-from app.utils.helpers import remove_file_if_exists
 from app.utils.llm_tools import run_llm_tools
 from app.utils.types import LLMResponse  # Import the LLMResponse type
 from app.utils.whatsapp import (
@@ -72,6 +79,26 @@ app.add_middleware(
 
 # Include admin router
 app.include_router(admin_router)
+
+
+# Handle expired JWT tokens globally
+@app.exception_handler(ExpiredSignatureError)
+async def expired_token_exception_handler(request, exc):
+    logger.warning("Expired token used")
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Token has expired",
+    )
+
+
+# Handle general exceptions globally
+@app.exception_handler(Exception)
+async def general_exception_handler(request, exc):
+    logger.error(f"Unhandled exception: {str(exc)}")
+    raise HTTPException(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        detail="An internal server error occurred",
+    )
 
 
 # Basic health check endpoint
@@ -150,7 +177,9 @@ async def verify_whatsapp_webhook(
 # WhatsApp webhook endpoint for receiving messages
 @app.post("/webhook/whatsapp")
 async def whatsapp_webhook(
-    request: Request, settings: Settings = Depends(get_settings)
+    request: Request,
+    background_tasks: BackgroundTasks,
+    settings: Settings = Depends(get_settings),
 ):
     """
     Webhook endpoint to receive messages from WhatsApp Cloud API.
@@ -206,7 +235,7 @@ async def whatsapp_webhook(
 
                 for message in messages:
                     # Process each message
-                    process_whatsapp_message(message, settings)
+                    process_whatsapp_message(message, settings, background_tasks)
 
         return {"success": True}
 
@@ -218,7 +247,9 @@ async def whatsapp_webhook(
         )
 
 
-def process_whatsapp_message(message, settings):
+def process_whatsapp_message(
+    message, settings, background_tasks: BackgroundTasks = None
+):
     """
     Process an individual WhatsApp message.
 
@@ -368,57 +399,20 @@ def process_whatsapp_message(message, settings):
             document_id = document_data.get("id", "")
             document_hash = document_data.get("sha256", "")
 
-            logger.info(
-                f"Received document: {document_filename} ({document_mime}), ID={document_id}"
+            document_job: DocumentJob = DocumentJob(
+                sender_id=sender_id,
+                type="document",
+                whatsapp_id=sender_id,
+                doc_caption=document_caption,
+                doc_filename=document_filename,
+                doc_mime=document_mime,
+                doc_id=document_id,
+                doc_hash=document_hash,
             )
 
-            # Download the document using WhatsApp API
-            file_path = download_whatsapp_media(
-                document_id, "document", sender_id, settings
-            )
-
-            if file_path:
-                # Process based on document type
-                if document_mime == "application/pdf":
-                    # Upload file to GCP Storage
-                    gcp_blob_path = f"documents/{document_filename}"
-                    gcp_storage.upload_file(file_path, gcp_blob_path)
-
-                    # Process PDF document (e.g., extract bill information)
-                    # Index document in Vector DB
-                    bill_data = DocumentCreator.create_document_from_pdf(
-                        file_path, gcp_blob_path
-                    )
-
-                    # Send a response back to the user
-                    if bill_data.get("processed", False):
-                        summary = bill_data.get("page_content", "")
-
-                        response_msg = f"I've received your PDF document and processed it.\n*Summary:* {summary}"
-                        # You could add more details from the processed data here
-                    else:
-                        response_msg = (
-                            "I received your document but had trouble processing it."
-                        )
-
-                    send_whatsapp_message(sender_id, response_msg, settings)
-                    # Remove temporary files
-                    remove_file_if_exists(file_path)
-                else:
-                    # Handle other document types
-                    logger.info(f"Unsupported document type: {document_mime}")
-                    send_whatsapp_message(
-                        sender_id,
-                        f"I received your document ({document_filename}) but I don't know how to process this type of file yet.",
-                        settings,
-                    )
-            else:
-                logger.error(f"Failed to download document: {document_id}")
-                send_whatsapp_message(
-                    sender_id,
-                    "I had trouble downloading your document. Please try sending it again.",
-                    settings,
-                )
+            if background_tasks:
+                logger.info("Adding to background task queue")
+                background_tasks.add_task(process_document, document_job)
 
         elif message_type == "audio":
             # TODO: Implement audio message handling
