@@ -29,6 +29,7 @@ class FirebaseChatHistory(BaseChatMessageHistory):
         self.user_id: str = use_id
         self.messages: List[BaseMessage] = []
         self._get_messages()
+        self.logger.info("Firebase chat history initialized successfully.")
 
     def add_message(self, message: BaseMessage):
         try:

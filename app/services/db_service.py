@@ -1,35 +1,55 @@
 import logging
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import firebase_admin
-from firebase_admin import firestore
+from firebase_admin import credentials, firestore
 
+from app.config import get_settings
 from app.utils.helpers import get_ttl_key
 
 logger = logging.getLogger(__name__)
 
-DB_NAME = 'whatsapp-chatbot' 
+DB_NAME = "whatsapp-chatbot"
+
+setting = get_settings()
+
 
 class FirestoreService:
     def __init__(self, cred_path: str = None):
-        firebase_admin.initialize_app()
-        self.db_app = firebase_admin.get_app()
-        self.db = firestore.client(app=self.db_app,database_id=DB_NAME)        
+        try:
+            logger.info("DB service initialization started")
+            cred = credentials.Certificate(cred_path)
+            firebase_admin.initialize_app(cred)
+            self.db_app = firebase_admin.get_app()
+            self.db = firestore.client(app=self.db_app, database_id=DB_NAME)
+            logger.info("DB service initialized successfully.")
+        except Exception as e:
+            logger.error(f"Something went wrong {e}")
 
     def write(self, collection: str, document_id: str, data: Dict):
-        self.db.collection(collection).document(document_id).set(data)
+        try:
+            self.db.collection(collection).document(document_id).set(data)
+        except Exception as e:
+            logger.error(f"Something went wrong {e}")
 
-    def read(self, collection: str, document_id: str):
+    def read(self, collection: str, document_id: str) -> Any | None:
         doc = self.db.collection(collection).document(document_id).get()
         if doc.exists:
             return doc.to_dict()
         return None
-    
-    def write_with_ttl(self, collection:str, document_id:str, data:Dict, ttl_seconds:Optional[int] = 300):
-        _data =  data | get_ttl_key(ttl_seconds=ttl_seconds)
+
+    def write_with_ttl(
+        self,
+        collection: str,
+        document_id: str,
+        data: Dict,
+        ttl_seconds: Optional[int] = 300,
+    ):
+        _data = data | get_ttl_key(ttl_seconds=ttl_seconds)
         return self.write(collection, document_id, _data)
-    
-    def delete(self, collection:str, document_id:str):        
+
+    def delete(self, collection: str, document_id: str):
         self.db.collection(collection).document(document_id).delete()
 
-db_service = FirestoreService()
+
+db_service = FirestoreService(setting.gcp_credentials_path)

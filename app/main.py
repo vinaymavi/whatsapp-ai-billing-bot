@@ -6,7 +6,6 @@ for the application. It serves as the entry point for the WhatsApp billing bot.
 """
 
 import json
-import logging
 import os
 from datetime import UTC, datetime
 
@@ -227,7 +226,7 @@ def process_whatsapp_message(message, settings):
         timestamp = message.get("timestamp")
         # Check if message is already processed
         if check_message_status_and_save(message_id):
-            logger.info(f"Message {message_id} is already processed.")
+            logger.warning(f"Message {message_id} is already processed.")
             return
         #  Send typing indicator
         send_read_receipt(message_id)
@@ -240,29 +239,34 @@ def process_whatsapp_message(message, settings):
 
         # Handle different message types
         if message_type == "text":
-            text_data = message.get("text", {})
-            text_body = text_data.get("body", "")
+            try:
+                text_data = message.get("text", {})
+                text_body = text_data.get("body", "")
 
-            logger.info(f"Received text message: {text_body}")
+                logger.info(f"Received text message: {text_body}")
 
-            chat_history.add_human_message(text_body, message_id)
-            # TODO: update llm service to access chat history
-            while True:
-                resp: LLMResponse = llm_service.format_and_query(chat_history.messages)
-
-                if resp["type"] == "tool_calls":
-                    chat_history.add_ai_message("", resp["tool_calls"])
-                    chat_history = run_llm_tools(
-                        resp["tool_calls"], chat_history, sender_id
+                chat_history.add_human_message(text_body, message_id)
+                # TODO: update llm service to access chat history
+                # TODO: limit maximum iterations to avoid infinite loops
+                while True:
+                    resp: LLMResponse = llm_service.format_and_query(
+                        chat_history.messages
                     )
-                elif resp["type"] == "message":
-                    chat_history.add_ai_message(resp["text"])
-                    break
 
-            logger.info(f"LLM response: {resp}")
-            chat_history.commit()
-            return send_whatsapp_message(sender_id, f"{resp['text']}", settings)
+                    if resp["type"] == "tool_calls":
+                        chat_history.add_ai_message("", resp["tool_calls"])
+                        chat_history = run_llm_tools(
+                            resp["tool_calls"], chat_history, sender_id
+                        )
+                    elif resp["type"] == "message":
+                        chat_history.add_ai_message(resp["text"])
+                        break
 
+                logger.info(f"LLM response: {resp}")
+                chat_history.commit()
+                return send_whatsapp_message(sender_id, f"{resp['text']}", settings)
+            except Exception as e:
+                logger.error(f"Something went wrong: {e}")
         elif message_type == "image":
             # Extract image details
             image_data = message.get("image", {})
