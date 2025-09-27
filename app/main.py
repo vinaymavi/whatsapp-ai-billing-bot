@@ -8,10 +8,12 @@ for the application. It serves as the entry point for the WhatsApp billing bot.
 import json
 import os
 from datetime import UTC, datetime
+from pathlib import Path
 
 import uvicorn
 from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 
 from app.config import Settings, get_settings
 from app.services.ai_service import analyze_text_with_openai, generate_bill_summary
@@ -52,6 +54,10 @@ app = FastAPI(
     description="API for WhatsApp billing automation with AI capabilities",
     version="1.0.0",
 )
+
+# Get the project root directory (parent of app directory)
+PROJECT_ROOT = Path(__file__).parent.parent
+DIST_DIR = PROJECT_ROOT / "dist"
 
 # Configure CORS
 app.add_middleware(
@@ -477,6 +483,40 @@ def process_whatsapp_message(message, settings):
 
     except Exception as e:
         logger.error(f"Error processing message: {str(e)}")
+
+
+# React admin app
+@app.get("/admin", response_class=FileResponse)
+async def get_admin_app():
+    return FileResponse(str(DIST_DIR / "index.html"))
+
+
+# Mount static files for serving React app assets
+# These must be mounted after all API routes to avoid conflicts
+@app.get("/assets/{file_path:path}")
+async def serve_assets(file_path: str):
+    """Serve static assets from the dist/assets directory"""
+    asset_path = DIST_DIR / "assets" / file_path
+    if asset_path.exists() and asset_path.is_file():
+        # Set proper media type based on file extension
+        media_type = None
+        if file_path.endswith(".js"):
+            media_type = "application/javascript"
+        elif file_path.endswith(".css"):
+            media_type = "text/css"
+        elif file_path.endswith(".svg"):
+            media_type = "image/svg+xml"
+        return FileResponse(str(asset_path), media_type=media_type)
+    raise HTTPException(status_code=404, detail="Asset not found")
+
+
+@app.get("/vite.svg")
+async def serve_vite_svg():
+    """Serve the vite.svg file"""
+    svg_path = DIST_DIR / "vite.svg"
+    if svg_path.exists():
+        return FileResponse(str(svg_path), media_type="image/svg+xml")
+    raise HTTPException(status_code=404, detail="File not found")
 
 
 # Main entry point for running the app directly
