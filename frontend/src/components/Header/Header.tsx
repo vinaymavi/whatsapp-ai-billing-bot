@@ -1,6 +1,6 @@
 export const Header = () => {
     return (
-        <header className="bg-blue-600 text-white p-4">
+        <header className="flex items-center bg-blue-600 text-white p-4">
             <h1 className="text-lg font-bold">My App</h1>
         </header>
     );
