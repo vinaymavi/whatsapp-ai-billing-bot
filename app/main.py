@@ -15,6 +15,7 @@ from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
+from app.api.admin.admin import router as admin_router
 from app.config import Settings, get_settings
 from app.services.ai_service import analyze_text_with_openai, generate_bill_summary
 from app.services.firebase_chat_history import FirebaseChatHistory
@@ -59,14 +60,18 @@ app = FastAPI(
 PROJECT_ROOT = Path(__file__).parent.parent
 DIST_DIR = PROJECT_ROOT / "dist"
 
-# Configure CORS
 app.add_middleware(
+    # Configure CORS
     CORSMiddleware,
     allow_origins=["*"],  # Adjust in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# Include admin router
+app.include_router(admin_router)
 
 
 # Basic health check endpoint
@@ -486,7 +491,7 @@ def process_whatsapp_message(message, settings):
 
 
 # React admin app
-@app.get("/admin", response_class=FileResponse)
+@app.get("/admin/*", response_class=FileResponse)
 async def get_admin_app():
     return FileResponse(str(DIST_DIR / "index.html"))
 

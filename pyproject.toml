@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "colorlog>=6.9.0",
-    "fastapi==0.115.12",
+    "fastapi[standard]==0.115.12",
     "firebase-admin>=6.8.0",
     "google-cloud-firestore==2.20.2",
     "google-cloud-storage==3.1.0",
@@ -33,7 +33,6 @@ dependencies = [
     "python-dateutil==2.9.0.post0",
     "python-dotenv==1.1.0",
     "python-jose[cryptography]==3.4.0",
-    "python-multipart==0.0.9",
     "requests==2.32.3",
     "uvicorn[standard]==0.34.2",
 ]
