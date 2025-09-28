@@ -1,0 +1,2 @@
+DB_COLLECTION = "background_jobs"
+DEFAULT_PAGE_SIZE = 15

@@ -1,10 +1,11 @@
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 import firebase_admin
 from firebase_admin import credentials, firestore
 
 from app.config import get_settings
+from app.utils.constants import DEFAULT_PAGE_SIZE
 from app.utils.helpers import get_ttl_key
 
 logger = logging.getLogger(__name__)
@@ -37,6 +38,25 @@ class FirestoreService:
         if doc.exists:
             return doc.to_dict()
         return None
+
+    def read_list(
+        self,
+        collection: str,
+        page: int,
+        order_by: str,
+        page_size: int = DEFAULT_PAGE_SIZE,
+    ) -> List[Any]:
+        if page < 1:
+            raise ValueError("Page must be >= 1")
+        offset = (page - 1) * page_size
+        docs = (
+            self.db.collection(collection)
+            .order_by(order_by)
+            .limit(page_size)
+            .offset(offset)
+            .stream()
+        )
+        return [doc.to_dict() for doc in docs]
 
     def write_with_ttl(
         self,

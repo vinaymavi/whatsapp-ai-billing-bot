@@ -1,10 +1,12 @@
-from typing import Annotated
+from typing import Annotated, Any, List
+from venv import logger
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
 
 from app.config import get_settings
+from app.services.jobs_service import job_service
 from app.services.jwt_service import jwt_service
 from app.services.otp_service import otp_service
 from app.utils.whatsapp import send_whatsapp_message
@@ -61,7 +63,9 @@ async def post_otp(otp_req: OtpReq) -> str:
         return ""
 
 
-@router.post("/token")
+@router.post(
+    "/token",
+)
 async def post_generate_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> Token:
@@ -77,8 +81,40 @@ async def post_generate_token(
         )
 
 
-@router.get("/me", response_model=User)
+@router.get(
+    "/me",
+    response_model=User,
+)
 async def get_current_user(
     current_user: Annotated[User, Depends(current_user)],
 ) -> User:
     return current_user
+
+
+@router.get(
+    "/runs",
+    response_model=List[Any],
+    name="Batch jobs",
+    dependencies=[Depends(current_user)],
+)
+async def get_runs(
+    page_size: int = Query(1, ge=1, le=100),
+):
+    """_summary_
+
+    Args:
+        page_size (int, optional): size of the page. Defaults to Query(1, ge=1, le=100).
+
+    Raises:
+        HTTPException: Http server error
+
+    Returns:
+        List: of Firestore documents
+    """
+    try:
+        return job_service.get_jobs(page_size)
+    except Exception as e:
+        logger.error(f"Exception occur {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+        )
