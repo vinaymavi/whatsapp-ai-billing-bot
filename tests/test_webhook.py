@@ -7,10 +7,6 @@ from unittest.mock import patch
 import pytest
 from fastapi.testclient import TestClient
 
-from app.main import app
-
-client = TestClient(app)
-
 
 @pytest.fixture(scope="function")
 def mock_settings_class():
@@ -30,7 +26,7 @@ def mock_process_whatsapp_message():
         yield mock_process_whatsapp_message
 
 
-def test_whatsapp_webhook_verification_success(mock_settings_class):
+def test_whatsapp_webhook_verification_success(mock_settings_class, client):
     """Test the WhatsApp webhook verification with valid parameters."""
 
     # Configure the mock settings
@@ -50,7 +46,7 @@ def test_whatsapp_webhook_verification_success(mock_settings_class):
     assert response.text == "challenge_string"
 
 
-def test_whatsapp_webhook_verification_failure(mock_settings_class):
+def test_whatsapp_webhook_verification_failure(client, mock_settings_class):
     """Test the WhatsApp webhook verification with invalid token."""
 
     # Configure the mock settings
@@ -71,7 +67,7 @@ def test_whatsapp_webhook_verification_failure(mock_settings_class):
 
 
 def test_whatsapp_webhook_message_handling(
-    mock_settings_class, mock_process_whatsapp_message
+    client, mock_settings_class, mock_process_whatsapp_message
 ):
     """Test the WhatsApp webhook POST endpoint for message handling."""
     from app.config import get_settings
