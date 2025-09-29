@@ -5,7 +5,6 @@ This module loads environment variables and provides configuration
 settings for the application through the Settings class.
 """
 
-import os
 from functools import lru_cache
 
 from pydantic import Field

@@ -265,7 +265,6 @@ def process_whatsapp_message(
         message_id = message.get("id")
         message_type = message.get("type")
         sender_id = message.get("from")
-        timestamp = message.get("timestamp")
         # Check if message is already processed
         if check_message_status_and_save(message_id):
             logger.warning(f"Message {message_id} is already processed.")
