@@ -1,0 +1,30 @@
+github_token = "your_github_token_here"
+
+test_env_vars = {
+  ENVIRONMENT = "your_environment_here"
+  WEBHOOK_TOKEN = "your_webhook_token_here"
+  WHATSAPP_API_TOKEN = "your_whatsapp_api_token_here"
+  WHATSAPP_PHONE_NUMBER_ID = "your_whatsapp_phone_number_id_here"
+  WHATSAPP_BUSINESS_ACCOUNT_ID = "your_whatsapp_business_account_id_here"
+  OPENAI_API_KEY = "your_openai_api_key_here"
+  OPENAI_MODEL = "your_openai_model_here"
+  GCP_PROJECT_ID = "your_gcp_project_id_here"
+  GCP_LOCATION = "your_gcp_location_here"
+  GCP_CREDENTIALS_PATH = "your_gcp_credentials_path_here"
+  GOOGLE_APPLICATION_CREDENTIALS = "your_google_application_credentials_here"
+  GCP_STORAGE_BUCKET = "your_gcp_storage_bucket_here"
+  LANGCHAIN_API_KEY = "your_langchain_api_key_here"
+  LANGCHAIN_TRACING_V2 = true
+  FIRESTORE_COLLECTION_CHAT_HISTORY = "your_firestore_collection_chat_history_here"
+  FIRESTORE_COLLECTION_PROCESSED_MESSAGES = "your_firestore_collection_processed_messages_here"
+  PINECONE_API_KEY = "your_pinecone_api_key_here"
+  PINECONE_INDEX_NAME = "your_pinecone_index_name_here"
+  TEMP_FILE_PATH = "your_temp_file_path_here"
+  JWT_SECRET_KEY = "your_jwt_secret_key_here"
+  JWT_ALGORITHM = "your_jwt_algorithm_here"
+  JWT_ACCESS_TOKEN_EXPIRE_MINUTES = 30
+  DEBUG = true
+  LOG_LEVEL = "your_log_level_here"
+  API_HOST = "your_api_host_here"
+  API_PORT = 8000
+}
