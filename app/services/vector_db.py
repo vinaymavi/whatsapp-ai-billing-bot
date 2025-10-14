@@ -9,6 +9,7 @@ from app.config import get_settings
 
 settings = get_settings()
 
+
 class VectorDB:
     def __init__(self):
         self.pc = Pinecone(
@@ -17,7 +18,7 @@ class VectorDB:
 
         existing_indexes = [index_info["name"] for index_info in self.pc.list_indexes()]
         index_name = settings.pinecone_index_name
-        
+
         if index_name not in existing_indexes:
             self.pc.create_index(
                 name=index_name,
@@ -28,7 +29,9 @@ class VectorDB:
             )
 
         index = self.pc.Index(index_name)
-        self.vector_store = PineconeVectorStore(index=index, embedding=OpenAIEmbeddings())    
+        self.vector_store = PineconeVectorStore(
+            index=index, embedding=OpenAIEmbeddings()
+        )
 
     def add_documents(self, documents: list):
         self.vector_store.add_documents(documents)
@@ -39,5 +42,5 @@ class VectorDB:
     def search(self, query: str, top_k: int = 100):
         return self.vector_store.similarity_search(query, k=top_k)
 
-vdb = VectorDB()
 
+vdb = VectorDB()

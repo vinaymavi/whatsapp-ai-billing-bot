@@ -5,7 +5,6 @@ Tests for WhatsApp webhook endpoints
 from unittest.mock import patch
 
 import pytest
-from fastapi.testclient import TestClient
 
 
 @pytest.fixture(scope="function")
