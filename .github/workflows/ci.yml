@@ -24,6 +24,9 @@ jobs:
 
       - name: Install dependencies
         run: uv sync
+      
+      - name: Print all environment variables
+        run: env
 
       - name: Run backend tests
         run: uv run pytest tests -v
