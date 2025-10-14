@@ -10,6 +10,33 @@ jobs:
   test-backend:
     runs-on: ubuntu-latest
     environment: test
+    env:
+      ENVIRONMENT: ${{ vars.ENVIRONMENT }}
+      WHATSAPP_PHONE_NUMBER_ID: ${{ vars.WHATSAPP_PHONE_NUMBER_ID }}
+      WHATSAPP_BUSINESS_ACCOUNT_ID: ${{ vars.WHATSAPP_BUSINESS_ACCOUNT_ID }}
+      OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+      GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+      GCP_LOCATION: ${{ vars.GCP_LOCATION }}
+      GCP_STORAGE_BUCKET: ${{ vars.GCP_STORAGE_BUCKET }}
+      LANGCHAIN_TRACING_V2: ${{ vars.LANGCHAIN_TRACING_V2 }}
+      FIRESTORE_COLLECTION_CHAT_HISTORY: ${{ vars.FIRESTORE_COLLECTION_CHAT_HISTORY }}
+      FIRESTORE_COLLECTION_PROCESSED_MESSAGES: ${{ vars.FIRESTORE_COLLECTION_PROCESSED_MESSAGES }}
+      PINECONE_INDEX_NAME: ${{ vars.PINECONE_INDEX_NAME }}
+      TEMP_FILE_PATH: ${{ vars.TEMP_FILE_PATH }}
+      JWT_ALGORITHM: ${{ vars.JWT_ALGORITHM }}
+      JWT_ACCESS_TOKEN_EXPIRE_MINUTES: ${{ vars.JWT_ACCESS_TOKEN_EXPIRE_MINUTES }}
+      DEBUG: ${{ vars.DEBUG }}
+      LOG_LEVEL: ${{ vars.LOG_LEVEL }}
+      API_HOST: ${{ vars.API_HOST }}
+      API_PORT: ${{ vars.API_PORT }}
+      WEBHOOK_TOKEN: ${{ secrets.WEBHOOK_TOKEN }}
+      WHATSAPP_API_TOKEN: ${{ secrets.WHATSAPP_API_TOKEN }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      GCP_CREDENTIALS_PATH: ${{ secrets.GCP_CREDENTIALS_PATH }}
+      GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+      LANGCHAIN_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
+      PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+      JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
