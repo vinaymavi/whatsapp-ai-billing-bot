@@ -46,7 +46,7 @@
         {
             "label": "Install Dependencies",
             "type": "shell",
-            "command": "${workspaceFolder}/.venv/bin/pip install -r requirements.txt",
+            "command": "${workspaceFolder}/.venv/bin/uv sync",
             "presentation": {
                 "reveal": "always",
                 "panel": "new"
