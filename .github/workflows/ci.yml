@@ -24,7 +24,10 @@ jobs:
 
       - name: Install dependencies
         run: uv sync
-      
+
+      - name: Check specific env var
+        run: echo "environment = $ENVIRONMENT"      
+
       - name: Print all environment variables
         run: env
 
