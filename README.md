@@ -1,5 +1,7 @@
 # WhatsApp AI Billing Bot: Revolutionize Your Invoice Management
 
+[![CI](https://github.com/vinaymavi/whatsapp-ai-billing-bot/actions/workflows/ci.yml/badge.svg)](https://github.com/vinaymavi/whatsapp-ai-billing-bot/actions/workflows/ci.yml)
+
 <p align="center">
     <img src="docs/banner.png" alt="WhatsApp AI Billing Bot Banner" width="100%" />
 </p>
