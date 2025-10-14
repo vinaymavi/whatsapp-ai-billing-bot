@@ -107,7 +107,15 @@ docker run -p 8000:8000 --env-file .env whatsapp-ai-billing-bot
 
 ## Enterprise Deployment
 
-This project includes CI/CD setup for automatic deployment to Google Cloud Run, ensuring:
+This project includes comprehensive CI/CD setup:
+
+**Continuous Integration** (automatic on PRs and pushes to main):
+- Automated backend and frontend unit tests
+- Docker image build validation
+- Quality checks before merging
+
+**Deployment to Production** (manual trigger only):
+- Controlled deployment to Google Cloud Run
 - Zero-downtime updates
 - Automatic scaling to match demand
 - Enterprise-grade security compliance
