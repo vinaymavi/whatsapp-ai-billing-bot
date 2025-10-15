@@ -1,6 +1,8 @@
 github_token = "your_github_token_here"
 gcp_project_id = "your project id"
 gcp_zone_india = "India zone name"
+gcp_project_number = "your-project-number"
+
 test_env_vars = {
   ENVIRONMENT = "your_environment_here"
   WEBHOOK_TOKEN = "your_webhook_token_here"
