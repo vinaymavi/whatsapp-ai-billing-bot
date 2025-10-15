@@ -13,3 +13,7 @@ output "test_env_vars" {
   value     = var.test_env_vars
   sensitive = true
 }
+
+output "gcp_docker_repo_name" {
+  value = google_artifact_registry_repository.gcp_docker_repo
+}

@@ -34,3 +34,17 @@ variable "test_env_vars" {
     API_PORT = number
   })
 }
+
+variable "gcp_project_id" {
+  description = "GCP cloud project_id"
+}
+
+variable "gcp_zone_india" {
+  description = "GCP project india zone"
+}
+
+variable "gcp_docker_repo_name" {
+  description = "GCP docker repository name"
+  type        = string
+  default     = "whatsapp-chatbot-repo"
+}

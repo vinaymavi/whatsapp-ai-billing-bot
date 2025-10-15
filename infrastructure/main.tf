@@ -198,3 +198,14 @@ resource "github_actions_environment_secret" "test_JWT_SECRET_KEY" {
   secret_name     = "JWT_SECRET_KEY"
   plaintext_value = var.test_env_vars.JWT_SECRET_KEY
 }
+
+
+# Google cloud 
+
+resource "google_artifact_registry_repository" "gcp_docker_repo" {
+  description = "GCP cloud docker registry"
+  location = var.gcp_zone_india
+  repository_id = var.gcp_docker_repo_name
+  format = "DOCKER"  
+}
+
