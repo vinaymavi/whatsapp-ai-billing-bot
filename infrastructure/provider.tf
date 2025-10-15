@@ -13,7 +13,7 @@ terraform {
 
 provider "github" {
   token = var.github_token
-  owner = "vinaymavi"
+  owner = var.git_hub_owner
 }
 
 provider "google" {

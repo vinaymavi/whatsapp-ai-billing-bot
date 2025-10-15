@@ -221,6 +221,30 @@ resource "google_service_account" "cloudrun_deployer" {
   description  = "Deploys to Cloud Run & pushes images to Artifact Registry"
 }
 
+# Create Workload Identity Pool
+resource "google_iam_workload_identity_pool" "github_pool_1" {
+  workload_identity_pool_id = "github-actions-pool-1"
+  display_name              = "GitHub Actions Pool"
+  description               = "Pool for GitHub Actions to impersonate cloudrun-deployer-sa"
+}
+
+# Create GitHub OIDC Provider
+resource "google_iam_workload_identity_pool_provider" "github_provider" {
+  workload_identity_pool_provider_id = "github-provider"
+  workload_identity_pool_id = google_iam_workload_identity_pool.github_pool_1.workload_identity_pool_id
+  display_name              = "GitHub Actions Provider"
+  attribute_mapping = {
+    "google.subject"             = "assertion.sub"
+    "attribute.actor"            = "assertion.actor"
+    "attribute.aud"              = "assertion.aud"
+    "attribute.repository"       = "assertion.repository"
+    "attribute.repository_owner" = "assertion.repository_owner"
+  }
+  attribute_condition = "attribute.repository == '${github_repository.github_repo.name}' && attribute.repository_owner == '${var.git_hub_owner}'"
+  oidc {
+    issuer_uri = "https://token.actions.githubusercontent.com"
+  }
+}
 
 #  Grant Artifact Registry Writer (for pushing Docker images)
 resource "google_project_iam_member" "sa_artifact_onpush_admin" {
@@ -257,4 +281,10 @@ resource "google_service_account_iam_member" "cloudrun_deployer_act_as_compute" 
   service_account_id = data.google_service_account.compute_default.name
   role               = "roles/iam.serviceAccountUser"
   member             = "serviceAccount:${google_service_account.cloudrun_deployer.email}"
+}
+
+resource "google_service_account_iam_member" "github_act_as_deployer" {
+  service_account_id = google_service_account.cloudrun_deployer.name
+  role               = "roles/iam.workloadIdentityUser"
+  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github_pool_1.name}/*"
 }

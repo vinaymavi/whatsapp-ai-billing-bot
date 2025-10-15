@@ -21,3 +21,11 @@ output "gcp_docker_repo_name" {
 output "gcp_sa_deployer" {
   value = google_service_account.cloudrun_deployer.email
 }
+
+output "gcp_federation_pool" {
+  value = google_iam_workload_identity_pool.github_pool_1.name
+}
+
+output "gcp_federation_provider" {
+  value = google_iam_workload_identity_pool_provider.github_provider.name
+}

@@ -3,6 +3,12 @@ variable "github_token" {
   type        = string
 }
 
+variable "git_hub_owner" {
+  description = "GitHub owner or organization name"
+  type        = string
+  default     = "vinaymavi"  
+}
+
 variable "test_env_vars" {
   description = "Test environment variables for Github"
   type = object({
