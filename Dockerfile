@@ -2,7 +2,9 @@ FROM python:3.13-slim
 
 WORKDIR /app
 COPY . /app
-RUN pip install -r requirements.txt
+RUN python -m pip install --upgrade pip \
+	&& pip install uv \
+	&& uv sync
 
 EXPOSE ${PORT:-8000}
 
