@@ -10,12 +10,11 @@ COPY . /app
 
 # Upgrade pip and install runtime dependencies. Use requirements.txt (exists in repo)
 # --no-cache-dir keeps the image smaller
-RUN python -m pip install --upgrade pip \
-	&& pip install uv \
-	&& uv sync
-
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+    
 EXPOSE ${PORT:-8000}
 
 # Use python -m uvicorn so we don't rely on a shell entrypoint being present in PATH
 # Use sh -c to allow ${PORT} expansion at runtime
-CMD ["sh", "-c", "python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
