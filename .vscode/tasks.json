@@ -53,5 +53,20 @@
             },
             "problemMatcher": []
         }
+        ,
+        {
+            "label": "Export Requirements",
+            "type": "shell",
+            "command": "uv pip compile pyproject.toml -o requirements.txt",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        }
     ]
 }
