@@ -171,12 +171,6 @@ resource "github_actions_environment_secret" "test_GCP_CREDENTIALS_PATH" {
   plaintext_value = var.test_env_vars.GCP_CREDENTIALS_PATH
 }
 
-resource "github_actions_environment_secret" "test_GOOGLE_APPLICATION_CREDENTIALS" {
-  repository      = github_repository.github_repo.name
-  environment     = github_repository_environment.test.environment
-  secret_name     = "GOOGLE_APPLICATION_CREDENTIALS"
-  plaintext_value = var.test_env_vars.GOOGLE_APPLICATION_CREDENTIALS
-}
 
 resource "github_actions_environment_secret" "test_LANGCHAIN_API_KEY" {
   repository      = github_repository.github_repo.name
@@ -231,8 +225,8 @@ resource "google_iam_workload_identity_pool" "github_pool_1" {
 # Create GitHub OIDC Provider
 resource "google_iam_workload_identity_pool_provider" "github_provider" {
   workload_identity_pool_provider_id = "github-provider"
-  workload_identity_pool_id = google_iam_workload_identity_pool.github_pool_1.workload_identity_pool_id
-  display_name              = "GitHub Actions Provider"
+  workload_identity_pool_id          = google_iam_workload_identity_pool.github_pool_1.workload_identity_pool_id
+  display_name                       = "GitHub Actions Provider"
   attribute_mapping = {
     "google.subject"             = "assertion.sub"
     "attribute.actor"            = "assertion.actor"
@@ -287,4 +281,30 @@ resource "google_service_account_iam_member" "github_act_as_deployer" {
   service_account_id = google_service_account.cloudrun_deployer.name
   role               = "roles/iam.workloadIdentityUser"
   member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github_pool_1.name}/*"
+}
+
+# Github Environment Variables for GCP
+
+#  GCP workload identity pool name
+resource "github_actions_environment_variable" "test_GCP_WLIP_GITHUB_PROVIDER" {
+  repository    = github_repository.github_repo.name
+  environment   = github_repository_environment.test.environment
+  variable_name = "GCP_WLIP_GITHUB_PROVIDER"
+  value         = google_iam_workload_identity_pool_provider.github_provider.name
+}
+
+# GCP service account email
+resource "github_actions_environment_variable" "test_GCP_SA_EMAIL" {
+  repository    = github_repository.github_repo.name
+  environment   = github_repository_environment.test.environment
+  variable_name = "GCP_SA_EMAIL"
+  value         = google_service_account.cloudrun_deployer.email
+}
+
+# GCP docker registry name
+resource "github_actions_environment_variable" "test_GCP_DOCKER_REGISTRY_URI" {
+  repository    = github_repository.github_repo.name
+  environment   = github_repository_environment.test.environment
+  variable_name = "GCP_DOCKER_REGISTRY_URI"
+  value         = google_artifact_registry_repository.gcp_docker_repo.registry_uri
 }

@@ -6,7 +6,7 @@ variable "github_token" {
 variable "git_hub_owner" {
   description = "GitHub owner or organization name"
   type        = string
-  default     = "vinaymavi"  
+  default     = "vinaymavi"
 }
 
 variable "test_env_vars" {

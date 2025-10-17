@@ -15,7 +15,11 @@ output "test_env_vars" {
 }
 
 output "gcp_docker_repo_name" {
-  value = google_artifact_registry_repository.gcp_docker_repo
+  value = {
+    id   = google_artifact_registry_repository.gcp_docker_repo.id
+    name = google_artifact_registry_repository.gcp_docker_repo.name
+    uri  = google_artifact_registry_repository.gcp_docker_repo.registry_uri
+  }
 }
 
 output "gcp_sa_deployer" {
