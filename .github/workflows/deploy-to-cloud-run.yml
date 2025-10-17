@@ -3,14 +3,47 @@ name: Deploy to Cloud Run
 on:
   workflow_dispatch:
 
-env:
-  GCP_REGION: asia-south1
-  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  GCP_IMAGE_REPO: agents
-  GCP_IMAGE_NAME: whatsapp-ai-agent
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: test
+    env:                        
+      ENVIRONMENT : ${{ vars.ENVIRONMENT }}
+      # GCP Settings
+      GCP_IMAGE_NAME: whatsapp-ai-agent
+      GCP_DOCKER_REGISTRY_URI: ${{ vars.GCP_DOCKER_REGISTRY_URI }}
+      GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+      GCP_LOCATION: ${{ vars.GCP_LOCATION }}
+      GCP_STORAGE_BUCKET: ${{ vars.GCP_STORAGE_BUCKET }}
+      GCP_SA_EMAIL: ${{ vars.GCP_SA_EMAIL }}
+      GCP_WLIP_GITHUB_PROVIDER: ${{ vars.GCP_WLIP_GITHUB_PROVIDER }}
+      FIRESTORE_COLLECTION_CHAT_HISTORY: ${{ vars.FIRESTORE_COLLECTION_CHAT_HISTORY }}
+      FIRESTORE_COLLECTION_PROCESSED_MESSAGES: ${{ vars.FIRESTORE_COLLECTION_PROCESSED_MESSAGES }}
+      
+      # Whatsapp 
+      WHATSAPP_PHONE_NUMBER_ID: ${{ vars.WHATSAPP_PHONE_NUMBER_ID }}
+      WHATSAPP_BUSINESS_ACCOUNT_ID: ${{ vars.WHATSAPP_BUSINESS_ACCOUNT_ID }}
+
+      # OpenAI
+      OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}      
+      LANGCHAIN_TRACING_V2: ${{ vars.LANGCHAIN_TRACING_V2 }}
+      
+      PINECONE_INDEX_NAME: ${{ vars.PINECONE_INDEX_NAME }}
+      TEMP_FILE_PATH: ${{ vars.TEMP_FILE_PATH }}
+      JWT_ALGORITHM: ${{ vars.JWT_ALGORITHM }}
+      JWT_ACCESS_TOKEN_EXPIRE_MINUTES: ${{ vars.JWT_ACCESS_TOKEN_EXPIRE_MINUTES }}
+      DEBUG: ${{ vars.DEBUG }}
+      LOG_LEVEL: ${{ vars.LOG_LEVEL }}
+      API_HOST: ${{ vars.API_HOST }}
+      API_PORT: ${{ vars.API_PORT }}
+      
+      # Secrets to be used as environment variables in Cloud Run
+      WEBHOOK_TOKEN: ${{ secrets.WEBHOOK_TOKEN }}
+      WHATSAPP_API_TOKEN: ${{ secrets.WHATSAPP_API_TOKEN }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      LANGCHAIN_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
+      PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+      JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -19,29 +52,29 @@ jobs:
         id: auth
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          workload_identity_provider: ${{ env.GCP_WLIP_GITHUB_PROVIDER }}
+          service_account: ${{ env.GCP_SA_EMAIL }}
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
 
       - name: Configure Docker
-        run: gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev
+        run: gcloud auth configure-docker ${{ env.GCP_LOCATION }}-docker.pkg.dev
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_IMAGE_REPO }}/${{ env.GCP_IMAGE_NAME }}:latest .
-          docker push ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_IMAGE_REPO }}/${{ env.GCP_IMAGE_NAME }}:latest
+          docker build -t ${{env.GCP_DOCKER_REGISTRY_URI}}/${{ env.GCP_IMAGE_NAME }}:latest .
+          docker push ${{env.GCP_DOCKER_REGISTRY_URI}}/${{ env.GCP_IMAGE_NAME }}:latest
 
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy ${{ env.GCP_IMAGE_NAME }} \
-            --image ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_IMAGE_REPO }}/${{ env.GCP_IMAGE_NAME }}:latest \
-            --region ${{ env.GCP_REGION }} \
+            --image ${{env.GCP_DOCKER_REGISTRY_URI}}/${{ env.GCP_IMAGE_NAME }}:latest \
+            --region ${{ env.GCP_LOCATION }} \
             --platform managed \
             --allow-unauthenticated \
             --memory=512Mi \
             --cpu=1 \
             --min-instances=0 \
             --max-instances=5 \
-            --set-env-vars ENVIRONMENT=production,DEBUG=false \
-            # --update-secrets=WHATSAPP_API_TOKEN=WHATSAPP_API_TOKEN:latest,WHATSAPP_PHONE_NUMBER_ID=WHATSAPP_PHONE_NUMBER_ID:latest,WHATSAPP_BUSINESS_ACCOUNT_ID=WHATSAPP_BUSINESS_ACCOUNT_ID:latest,OPENAI_API_KEY=OPENAI_API_KEY:latest,GCP_PROJECT_ID=GCP_PROJECT_ID:latest,PINECONE_API_KEY=PINECONE_API_KEY:latest,PINECONE_ENVIRONMENT=PINECONE_ENVIRONMENT:latest,PINECONE_INDEX_NAME=PINECONE_INDEX_NAME:latest
+            --set-env-vars ENVIRONMENT="$ENVIRONMENT",GCP_IMAGE_NAME="$GCP_IMAGE_NAME",GCP_DOCKER_REGISTRY_URI="$GCP_DOCKER_REGISTRY_URI",GCP_PROJECT_ID="$GCP_PROJECT_ID",GCP_LOCATION="$GCP_LOCATION",GCP_STORAGE_BUCKET="$GCP_STORAGE_BUCKET",FIRESTORE_COLLECTION_CHAT_HISTORY="$FIRESTORE_COLLECTION_CHAT_HISTORY",FIRESTORE_COLLECTION_PROCESSED_MESSAGES="$FIRESTORE_COLLECTION_PROCESSED_MESSAGES",WHATSAPP_PHONE_NUMBER_ID="$WHATSAPP_PHONE_NUMBER_ID",WHATSAPP_BUSINESS_ACCOUNT_ID="$WHATSAPP_BUSINESS_ACCOUNT_ID",OPENAI_MODEL="$OPENAI_MODEL",LANGCHAIN_TRACING_V2="$LANGCHAIN_TRACING_V2",PINECONE_INDEX_NAME="$PINECONE_INDEX_NAME",TEMP_FILE_PATH="$TEMP_FILE_PATH",JWT_ALGORITHM="$JWT_ALGORITHM",JWT_ACCESS_TOKEN_EXPIRE_MINUTES="$JWT_ACCESS_TOKEN_EXPIRE_MINUTES",DEBUG="$DEBUG",LOG_LEVEL="$LOG_LEVEL",API_HOST="$API_HOST",API_PORT="$API_PORT",WEBHOOK_TOKEN="$WEBHOOK_TOKEN",WHATSAPP_API_TOKEN="$WHATSAPP_API_TOKEN",OPENAI_API_KEY="$OPENAI_API_KEY",LANGCHAIN_API_KEY="$LANGCHAIN_API_KEY",PINECONE_API_KEY="$PINECONE_API_KEY",JWT_SECRET_KEY="$JWT_SECRET_KEY" \            
