@@ -17,6 +17,18 @@ export class HttpClient {
     return HttpClient.instance;
   }
 
+  private async get(
+    url: string,
+    headers: Record<string, string> = {}
+  ): Promise<any> {
+    const fetchOptions: RequestInit = {
+      method: "GET",
+      headers: { ...headers },
+    };
+
+    const resp = await fetch(`${HttpClient.httpServer}${url}`, fetchOptions);
+    return await resp.json();
+  }
   private async post(
     url: string,
     data: any,
@@ -34,13 +46,8 @@ export class HttpClient {
       body: isFormData ? data : JSON.stringify(data),
     };
 
-    return fetch(`${HttpClient.httpServer}${url}`, fetchOptions)
-      .then((resp) => resp.json())
-      .then((data) => data)
-      .catch((error) => {
-        console.error("HTTP POST Error:", error);
-        throw error;
-      });
+    const resp = await fetch(`${HttpClient.httpServer}${url}`, fetchOptions);
+    return await resp.json();
   }
 
   public async otp(data: { phone_number: string }): Promise<any> {
@@ -63,6 +70,20 @@ export class HttpClient {
     const respData = await this.post("/api/admin/token", form);
     this.setAccessTokenTOLocalStorage(respData.access_token);
     alert("OTP verified successfully!");
+    return respData;
+  }
+
+  public async getRuns(): Promise<any> {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      throw new Error("Access token not found. Please log in.");
+    }
+
+    const headers = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    const respData = await this.get("/api/admin/runs", headers);
     return respData;
   }
 }
