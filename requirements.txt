@@ -31,6 +31,7 @@ certifi==2025.10.5
     #   httpcore
     #   httpx
     #   pinecone
+    #   pinecone-client
     #   requests
     #   sentry-sdk
 cffi==2.0.0
@@ -200,14 +201,11 @@ numpy==2.2.5
     #   whatsapp-ai-billing-bot (pyproject.toml)
     #   langchain-pinecone
     #   langchain-tests
-    #   opencv-python
     #   pandas
 openai==1.78.1
     # via
     #   whatsapp-ai-billing-bot (pyproject.toml)
     #   langchain-openai
-opencv-python==4.12.0.88
-    # via whatsapp-ai-billing-bot (pyproject.toml)
 openpyxl==3.1.2
     # via whatsapp-ai-billing-bot (pyproject.toml)
 orjson==3.11.3
@@ -233,13 +231,15 @@ pillow==10.4.0
     #   pdf2image
     #   pytesseract
 pinecone==7.3.0
-    # via
-    #   whatsapp-ai-billing-bot (pyproject.toml)
-    #   langchain-pinecone
+    # via langchain-pinecone
+pinecone-client==6.0.0
+    # via whatsapp-ai-billing-bot (pyproject.toml)
 pinecone-plugin-assistant==1.8.0
     # via pinecone
 pinecone-plugin-interface==0.0.7
-    # via pinecone
+    # via
+    #   pinecone
+    #   pinecone-client
 pip==25.2
     # via whatsapp-ai-billing-bot (pyproject.toml)
 pluggy==1.6.0
@@ -333,6 +333,7 @@ python-dateutil==2.9.0.post0
     #   pandas
     #   pendulum
     #   pinecone
+    #   pinecone-client
 python-dotenv==1.1.0
     # via
     #   whatsapp-ai-billing-bot (pyproject.toml)
@@ -418,6 +419,7 @@ typing-extensions==4.15.0
     #   langchain-core
     #   openai
     #   pinecone
+    #   pinecone-client
     #   pydantic
     #   pydantic-core
     #   pydantic-extra-types
@@ -438,6 +440,7 @@ uritemplate==4.2.0
 urllib3==2.5.0
     # via
     #   pinecone
+    #   pinecone-client
     #   requests
     #   sentry-sdk
     #   vcrpy
