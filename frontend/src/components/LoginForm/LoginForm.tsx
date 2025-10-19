@@ -1,6 +1,6 @@
-import { useState, type FC } from "react";
+import { useState, useTransition, type FC } from "react";
 import { useNavigate } from "react-router";
-import {httpClient} from '@/httpClient';
+import { httpClient } from "@/httpClient";
 interface props {
   title: string;
   desc: string;
@@ -9,8 +9,8 @@ interface props {
 }
 
 const countryCodes = [
-  { code: "+1", country: "USA/Canada", value: "1" },  
-  { code: "+91", country: "India", value: "91" },  
+  { code: "+1", country: "USA/Canada", value: "1" },
+  { code: "+91", country: "India", value: "91" },
 ];
 
 export const LoginForm: FC<props> = ({
@@ -24,7 +24,11 @@ export const LoginForm: FC<props> = ({
   const [error, setError] = useState<string | null>(null);
   const [touched, setTouched] = useState<boolean>(false);
   const [selectedCountry, setSelectedCountry] = useState<any>(countryCodes[0]);
-  const [formStep, setFormStep] = useState<"phone" | "otp" | 'optverified'>("phone");
+  const [formStep, setFormStep] = useState<"phone" | "otp" | "optverified">(
+    "phone"
+  );
+
+  const [isPending, startTransition] = useTransition();
 
   const navigate = useNavigate();
   // Basic E.164-like validation: optional leading +, country code cannot start with 0,
@@ -37,19 +41,25 @@ export const LoginForm: FC<props> = ({
   };
 
   const generateOtp = async (phoneNumber: string) => {
-    await httpClient.otp({phone_number: `${selectedCountry.value}${phoneNumber}`});
-    setFormStep("otp");
-  }
-
+    startTransition(async () => {
+      await httpClient.otp({
+        phone_number: `${selectedCountry.value}${phoneNumber}`,
+      });
+      setFormStep("otp");
+    });
+  };
 
   const validateOtp = async (phoneNumber: string, otp: string) => {
-    await httpClient.verifyOtp({phone_number: `${selectedCountry.value}${phoneNumber}`, otp});
-    setFormStep("optverified");
-    navigate('/dashboard');
-  }
-  
+    startTransition(async () => {
+      await httpClient.verifyOtp({
+        phone_number: `${selectedCountry.value}${phoneNumber}`,
+        otp,
+      });
+      setFormStep("optverified");
+      navigate("/dashboard");
+    });
+  };
 
-      
   return (
     <>
       <style>
@@ -80,9 +90,9 @@ export const LoginForm: FC<props> = ({
               return;
             }
 
-            if(formStep==="phone"){
+            if (formStep === "phone") {
               generateOtp(phone);
-            } else if(formStep==="otp"){
+            } else if (formStep === "otp") {
               validateOtp(phone, otp);
             }
           }}
@@ -90,13 +100,14 @@ export const LoginForm: FC<props> = ({
           <div className="join">
             <div className="join-item">
               <details className="dropdown">
-                <summary className="btn m-1"> {selectedCountry.country} ({selectedCountry.code})</summary>
+                <summary className="btn m-1">
+                  {" "}
+                  {selectedCountry.country} ({selectedCountry.code})
+                </summary>
                 <ul className="menu dropdown-content bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
                   {countryCodes.map((cc) => (
                     <li key={cc.code}>
-                      <a
-                        onClick={() => setSelectedCountry(cc)}
-                      >
+                      <a onClick={() => setSelectedCountry(cc)}>
                         {cc.country} ({cc.code})
                       </a>
                     </li>
@@ -146,13 +157,20 @@ export const LoginForm: FC<props> = ({
               )}
             </div>
           </div>
-           <input type='number' className="input mt-4" placeholder="Enter OTP" disabled={formStep !== "otp"} value={otp} onChange={(e)=>setOtp(e.target.value)}  />
+          <input
+            type="number"
+            className="input mt-4"
+            placeholder="Enter OTP"
+            disabled={formStep !== "otp"}
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+          />
           <button
             type="submit"
             className="btn mt-2 bg-teal-800 text-white hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={!phone || !!error}
+            disabled={!phone || !!error || isPending}
           >
-            {buttonLabel}
+            {isPending ? "Please wait..." : buttonLabel}
           </button>
         </form>
       </div>
