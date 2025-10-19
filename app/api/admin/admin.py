@@ -56,7 +56,7 @@ async def post_otp(otp_req: OtpReq) -> str:
     otp = otp_service.generate_otp_and_save(otp_req.phone_number)
     message = f"Your OTP is {otp}"
     # Send the OTP via SMS or any other method
-    s, err = send_whatsapp_message(f"1{otp_req.phone_number}", message, settings)
+    s, err = send_whatsapp_message(f"{otp_req.phone_number}", message, settings)
     if s is False:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
     else:

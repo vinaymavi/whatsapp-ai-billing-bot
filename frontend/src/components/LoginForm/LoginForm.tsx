@@ -5,16 +5,22 @@ interface props {
   inputPlaceholder: string;
   buttonLabel: string;
 }
+
+const countryCodes = [
+  { code: "+1", country: "USA/Canada", value: "1" },  
+  { code: "+91", country: "India", value: "91" },  
+];
+
 export const LoginForm: FC<props> = ({
   buttonLabel,
-  desc,  
+  desc,
   inputPlaceholder,
   title,
 }) => {
   const [phone, setPhone] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [touched, setTouched] = useState<boolean>(false);
-
+  const [selectedCountry, setSelectedCountry] = useState<any>(countryCodes[0]);
   // Basic E.164-like validation: optional leading +, country code cannot start with 0,
   // total digits between 8 and 15. This is intentionally simple and avoids adding
   // an external lib; replace with libphonenumber if stricter validation is needed.
@@ -23,9 +29,9 @@ export const LoginForm: FC<props> = ({
     const re = /^\+?[1-9]\d{7,14}$/;
     return re.test(cleaned);
   };
-  return (    
+  return (
     <>
-    <style>
+      <style>
         {`
           @keyframes shadowPulse {
             0%, 100% { box-shadow: 0 25px 50px -12px rgba(20, 184, 166, 0.25); }
@@ -47,7 +53,9 @@ export const LoginForm: FC<props> = ({
             e.preventDefault();
             setTouched(true);
             if (!validatePhoneNumber(phone)) {
-              setError("Please enter a valid phone number including country code (e.g. +1234567890)");
+              setError(
+                "Please enter a valid phone number including country code (e.g. +1234567890)"
+              );
               return;
             }
 
@@ -56,38 +64,64 @@ export const LoginForm: FC<props> = ({
             console.log("Submitting phone:", phone);
           }}
         >
-          <input
-            className="input"
-            id="mobile-num"
-            name="mobile"
-            type="tel"
-            inputMode="tel"
-            placeholder={inputPlaceholder}
-            value={phone}
-            aria-invalid={!!error}
-            aria-describedby={error ? "mobile-num-error" : undefined}
-            onChange={(e) => {
-              const v = e.target.value;
-              setPhone(v);
-              if (touched) {
-                if (!v) setError("Phone number is required");
-                else if (!validatePhoneNumber(v)) setError("Invalid phone number");
-                else setError(null);
-              }
-            }}
-            onBlur={() => {
-              setTouched(true);
-              if (!phone) setError("Phone number is required");
-              else if (!validatePhoneNumber(phone)) setError("Invalid phone number");
-              else setError(null);
-            }}
-          />
-
-          {error && (
-            <div id="mobile-num-error" className="text-sm text-red-600 mt-2" role="alert">
-              {error}
+          <div className="join">
+            <div className="join-item">
+              <details className="dropdown">
+                <summary className="btn m-1"> {selectedCountry.country} ({selectedCountry.code})</summary>
+                <ul className="menu dropdown-content bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
+                  {countryCodes.map((cc) => (
+                    <li key={cc.code}>
+                      <a
+                        onClick={() => setSelectedCountry(cc)}
+                      >
+                        {cc.country} ({cc.code})
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </details>
             </div>
-          )}
+            <div className="join-item">
+              <input
+                className="input"
+                id="mobile-num"
+                name="mobile"
+                type="tel"
+                inputMode="tel"
+                placeholder={inputPlaceholder}
+                value={phone}
+                aria-invalid={!!error}
+                aria-describedby={error ? "mobile-num-error" : undefined}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setPhone(v);
+                  if (touched) {
+                    if (!v) setError("Phone number is required");
+                    else if (!validatePhoneNumber(v))
+                      setError("Invalid phone number");
+                    else setError(null);
+                  }
+                }}
+                onBlur={() => {
+                  setTouched(true);
+                  if (!phone) setError("Phone number is required");
+                  else if (!validatePhoneNumber(phone))
+                    setError("Invalid phone number");
+                  else setError(null);
+                }}
+              />
+
+              {error && (
+                <div
+                  id="mobile-num-error"
+                  className="text-sm text-red-600 mt-2"
+                  role="alert"
+                >
+                  {error}
+                </div>
+              )}
+            </div>
+          </div>
 
           <button
             type="submit"
