@@ -8,6 +8,14 @@
     "types": ["vite/client","vitest/globals", "@testing-library/jest-dom"],
     "skipLibCheck": true,
 
+    /* Resolve aliases from the project root */
+    "baseUrl": ".",
+    "paths": {
+      "@components/*": ["src/components/*"],
+      "@components": ["src/components"],
+      "@/*": ["src/*"]
+    },
+
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,

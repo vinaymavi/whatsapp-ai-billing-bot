@@ -1,4 +1,6 @@
 import { useState, type FC } from "react";
+
+import {httpClient} from '@/httpClient';
 interface props {
   title: string;
   desc: string;
@@ -18,9 +20,12 @@ export const LoginForm: FC<props> = ({
   title,
 }) => {
   const [phone, setPhone] = useState<string>("");
+  const [otp, setOtp] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [touched, setTouched] = useState<boolean>(false);
   const [selectedCountry, setSelectedCountry] = useState<any>(countryCodes[0]);
+  const [formStep, setFormStep] = useState<"phone" | "otp" | 'optverified'>("phone");
+
   // Basic E.164-like validation: optional leading +, country code cannot start with 0,
   // total digits between 8 and 15. This is intentionally simple and avoids adding
   // an external lib; replace with libphonenumber if stricter validation is needed.
@@ -29,6 +34,20 @@ export const LoginForm: FC<props> = ({
     const re = /^\+?[1-9]\d{7,14}$/;
     return re.test(cleaned);
   };
+
+  const generateOtp = async (phoneNumber: string) => {
+    await httpClient.otp({phone_number: `${selectedCountry.value}${phoneNumber}`});
+    setFormStep("otp");
+  }
+
+
+  const validateOtp = async (phoneNumber: string, otp: string) => {
+    await httpClient.verifyOtp({phone_number: `${selectedCountry.value}${phoneNumber}`, otp});
+    setFormStep("optverified");
+  }
+  
+
+      
   return (
     <>
       <style>
@@ -59,9 +78,11 @@ export const LoginForm: FC<props> = ({
               return;
             }
 
-            // Phone is valid — proceed with whatever the parent should do next.
-            // For now we simply log it; replace with a callback prop if needed.
-            console.log("Submitting phone:", phone);
+            if(formStep==="phone"){
+              generateOtp(phone);
+            } else if(formStep==="otp"){
+              validateOtp(phone, otp);
+            }
           }}
         >
           <div className="join">
@@ -88,6 +109,7 @@ export const LoginForm: FC<props> = ({
                 name="mobile"
                 type="tel"
                 inputMode="tel"
+                disabled={formStep !== "phone"}
                 placeholder={inputPlaceholder}
                 value={phone}
                 aria-invalid={!!error}
@@ -122,7 +144,7 @@ export const LoginForm: FC<props> = ({
               )}
             </div>
           </div>
-
+           <input type='number' className="input mt-4" placeholder="Enter OTP" disabled={formStep !== "otp"} value={otp} onChange={(e)=>setOtp(e.target.value)}  />
           <button
             type="submit"
             className="btn mt-2 bg-teal-800 text-white hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed"
