@@ -39,12 +39,18 @@ export class HttpClient {
         return respData;
     }
 
+    private async setAccessTokenTOLocalStorage(token: string): Promise<void> {
+        localStorage.setItem('access_token', token);
+    }
+
     public async verifyOtp(data: { phone_number: string; otp: string }): Promise<any> {
         const form = new FormData();
         form.append('username', data.phone_number);
         form.append('password', data.otp);
 
-        const respData = await this.post('/api/admin/token', form);
+        const respData = await this.post('/api/admin/token', form);    
+        this.setAccessTokenTOLocalStorage(respData.access_token);
+        alert("OTP verified successfully!");
         return respData;
     }
 }
