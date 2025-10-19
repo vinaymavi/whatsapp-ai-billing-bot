@@ -1,6 +1,7 @@
-import { useState, useTransition, type FC } from "react";
+import { useContext, useEffect, useState, useTransition, type FC } from "react";
 import { useNavigate } from "react-router";
 import { httpClient } from "@/httpClient";
+import { Context } from "@/context/GlobalContext";
 interface props {
   title: string;
   desc: string;
@@ -29,6 +30,8 @@ export const LoginForm: FC<props> = ({
   );
 
   const [isPending, startTransition] = useTransition();
+
+  const { setHeaderTitle } = useContext(Context);
 
   const navigate = useNavigate();
   // Basic E.164-like validation: optional leading +, country code cannot start with 0,
@@ -59,6 +62,10 @@ export const LoginForm: FC<props> = ({
       navigate("/dashboard");
     });
   };
+
+  useEffect(() => {
+    setHeaderTitle?.("Chat Bot Admin Login")
+  }, [setHeaderTitle]);
 
   return (
     <>

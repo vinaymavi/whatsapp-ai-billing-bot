@@ -6,28 +6,31 @@ import App from "./App.tsx";
 import { LoginForm } from "@components/LoginForm/LoginForm.tsx";
 import { AuthLayout } from "@components/AuthLayout/AuthLayout.tsx";
 import { Dashboard } from "@components/Dashboard/Dashboard.tsx";
+import { GlobalContext } from "@/context/GlobalContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<App />}>
-          <Route
-            index
-            element={
-              <LoginForm
-                title="Welcome"
-                desc="Login to Admin seciton"
-                buttonLabel="Login"
-                inputPlaceholder="Admin #"
-              />
-            }
-          />         
-          <Route path="/dashboard" element={<AuthLayout />}>
-          <Route index element={<Dashboard/>}/>
+    <GlobalContext>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<App />}>
+            <Route
+              index
+              element={
+                <LoginForm
+                  title="Welcome"
+                  desc="Login to Admin seciton"
+                  buttonLabel="Login"
+                  inputPlaceholder="Admin #"
+                />
+              }
+            />
+            <Route path="/dashboard" element={<AuthLayout />}>
+              <Route index element={<Dashboard />} />
+            </Route>
           </Route>
-        </Route>
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
+    </GlobalContext>
   </StrictMode>
 );

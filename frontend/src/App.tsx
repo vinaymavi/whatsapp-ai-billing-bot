@@ -4,7 +4,7 @@ import { Outlet} from 'react-router'
 function App() {
   return (
     <div className='flex flex-col items-center justify-center'>
-      <Header title='Chat bot admin login' />
+      <Header />
       <Outlet/>
     </div>
   )
