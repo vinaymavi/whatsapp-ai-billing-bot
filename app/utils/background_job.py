@@ -3,7 +3,6 @@ from enum import Enum
 from typing import Dict
 from uuid import uuid4
 
-from cv2 import log
 from pydantic import BaseModel
 
 from app.services.db_service import db_service

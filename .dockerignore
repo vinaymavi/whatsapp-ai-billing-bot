@@ -12,6 +12,7 @@ __pycache__/
 venv/
 ENV/
 env/
+.venv/
 *.egg-info/
 dist/
 build/
@@ -37,3 +38,12 @@ LICENSE
 # Docker
 Dockerfile
 .dockerignore
+
+# Project temp files 
+*.log
+*.tmp
+media/
+infrastructure/
+docs/
+
+docker-env/
