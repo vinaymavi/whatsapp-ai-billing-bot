@@ -1,5 +1,5 @@
 import { useState, type FC } from "react";
-
+import { useNavigate } from "react-router";
 import {httpClient} from '@/httpClient';
 interface props {
   title: string;
@@ -26,6 +26,7 @@ export const LoginForm: FC<props> = ({
   const [selectedCountry, setSelectedCountry] = useState<any>(countryCodes[0]);
   const [formStep, setFormStep] = useState<"phone" | "otp" | 'optverified'>("phone");
 
+  const navigate = useNavigate();
   // Basic E.164-like validation: optional leading +, country code cannot start with 0,
   // total digits between 8 and 15. This is intentionally simple and avoids adding
   // an external lib; replace with libphonenumber if stricter validation is needed.
@@ -44,6 +45,7 @@ export const LoginForm: FC<props> = ({
   const validateOtp = async (phoneNumber: string, otp: string) => {
     await httpClient.verifyOtp({phone_number: `${selectedCountry.value}${phoneNumber}`, otp});
     setFormStep("optverified");
+    navigate('/dashboard');
   }
   
 
