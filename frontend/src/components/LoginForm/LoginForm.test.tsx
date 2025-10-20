@@ -1,6 +1,15 @@
 import { render, screen, fireEvent, createEvent } from '@testing-library/react';
+import { BrowserRouter } from 'react-router';
 import { vi } from 'vitest';
 import { LoginForm } from './LoginForm';
+
+const renderLoginForm = (props: any) => {
+  return render(
+    <BrowserRouter>
+      <LoginForm {...props} />
+    </BrowserRouter>
+  );
+};
 
 describe('LoginForm', () => {
   it('renders the title, description, input placeholder, and button label correctly', () => {
@@ -11,7 +20,7 @@ describe('LoginForm', () => {
       buttonLabel: 'Login',
     };
 
-    render(<LoginForm {...props} />);
+    renderLoginForm(props);
 
     expect(screen.getByText('Welcome')).toBeInTheDocument();
     expect(screen.getByText('Please enter your mobile number')).toBeInTheDocument();
@@ -27,7 +36,7 @@ describe('LoginForm', () => {
       buttonLabel: 'Test button',
     };
 
-    render(<LoginForm {...props} />);
+    renderLoginForm(props);
 
     const form = screen.getByRole('form');
     
@@ -47,10 +56,11 @@ describe('LoginForm', () => {
       buttonLabel: 'Submit',
     };
 
-    render(<LoginForm {...props} />);
+    renderLoginForm(props);
 
     const input = screen.getByPlaceholderText('Enter text');
-    expect(input).toHaveAttribute('type', 'text');
+    // component uses type="tel" for phone number input
+    expect(input).toHaveAttribute('type', 'tel');
     expect(input).toHaveAttribute('id', 'mobile-num');
   });
 });

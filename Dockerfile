@@ -1,3 +1,16 @@
+From node:22-alpine as frontend-build
+WORKDIR /app
+
+COPY frontend/package*.json /app/frontend/
+COPY frontend/ /app/frontend/
+
+RUN cd /app/frontend \
+    && npm install \
+    && npm run build \
+    && npm cache clean --force
+
+
+
 FROM python:3.13-slim
 
 WORKDIR /app
@@ -7,6 +20,8 @@ COPY pyproject.toml requirements.txt uv.lock* ./
 
 # Copy the rest of the application
 COPY . /app
+
+COPY --from=frontend-build /app/dist /app/dist
 
 # Upgrade pip and install runtime dependencies. Use requirements.txt (exists in repo)
 # --no-cache-dir keeps the image smaller

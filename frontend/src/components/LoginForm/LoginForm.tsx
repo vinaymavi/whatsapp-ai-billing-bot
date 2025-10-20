@@ -80,7 +80,7 @@ export const LoginForm: FC<props> = ({
           }
         `}
       </style>
-      <div className="flex max-w-2xl text-gray-800 items-center flex-col p-7 shadow-2xl shadow-teal-600 shadow-pulse">
+  <div className="flex max-w-2xl text-gray-800 dark:text-gray-200 items-center flex-col p-7 shadow-2xl shadow-teal-600 shadow-pulse">
         <h1 className="text-3xl pt-4">{title}</h1>
         <h5 className="text-l pt-0">{desc}</h5>
         <form

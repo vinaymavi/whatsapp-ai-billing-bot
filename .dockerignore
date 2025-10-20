@@ -47,3 +47,6 @@ infrastructure/
 docs/
 
 docker-env/
+
+# Frontend
+frontend/node_modules/
