@@ -95,6 +95,11 @@ async def expired_token_exception_handler(request, exc):
 @app.exception_handler(Exception)
 async def general_exception_handler(request, exc):
     logger.error(f"Unhandled exception: {str(exc)}")
+    # Log additional context for database errors
+    if "Firestore" in str(type(exc)) or "database" in str(exc).lower():
+        logger.error(
+            f"Database error details - Type: {type(exc).__name__}, Message: {str(exc)}"
+        )
     raise HTTPException(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         detail="An internal server error occurred",
@@ -483,9 +488,10 @@ def process_whatsapp_message(
         logger.error(f"Error processing message: {str(e)}")
 
 
-# React admin app
-@app.get("/admin/*", response_class=FileResponse)
-async def get_admin_app():
+# React admin app - serves index.html for all admin routes
+@app.get("/admin/{path:path}", response_class=FileResponse)
+@app.get("/admin", response_class=FileResponse)
+async def get_admin_app(path: str = ""):
     return FileResponse(str(DIST_DIR / "index.html"))
 
 

@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Route, Routes } from "react-router";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router";
 import "./index.css";
 import App from "./App.tsx";
 import { LoginForm } from "@components/LoginForm/LoginForm.tsx";
@@ -13,7 +13,8 @@ createRoot(document.getElementById("root")!).render(
     <GlobalContext>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<App />}>
+          <Route path="/" element={<Navigate to="/admin" replace />}></Route>
+          <Route path="/admin" element={<App />}>
             <Route
               index
               element={
@@ -25,7 +26,7 @@ createRoot(document.getElementById("root")!).render(
                 />
               }
             />
-            <Route path="/dashboard" element={<AuthLayout />}>
+            <Route path="/admin/dashboard" element={<AuthLayout />}>
               <Route index element={<Dashboard />} />
             </Route>
           </Route>

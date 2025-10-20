@@ -59,7 +59,7 @@ export const LoginForm: FC<props> = ({
         otp,
       });
       setFormStep("optverified");
-      navigate("/dashboard");
+      navigate("/admin/dashboard");
     });
   };
 
