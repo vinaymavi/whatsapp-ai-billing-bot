@@ -8,14 +8,50 @@ export const Header: FC<{}> = () => {
     <header className="flex items-center justify-center bg-emerald-800  p-4 w-full">
       {isLogin ? (
         <div className="join join-vertical lg:join-horizontal">
-          <NavLink to="/admin/dashboard">
-            <button className="btn join-item">Runs</button>
+          {/* Anchor Button: /admin/dashboard */}
+          <NavLink
+            to="/admin/dashboard"
+            className={({ isActive }) => `${isActive ? "bg-emerald-600" : ""}`}
+          >
+            {({ isActive }) => (
+              <button
+                className={`btn join-item ${
+                  isActive ? "btn-active bg-emerald-600" : ""
+                }`}
+              >
+                Runs
+              </button>
+            )}
           </NavLink>
-          <NavLink to="/admin/prepare-jobs">
-            <button className="btn join-item">Prepare Jobs+</button>
+          {/* Anchor Button: /admin/prepare-jobs */}
+          <NavLink
+            to="/admin/prepare-jobs"
+            className={({ isActive }) => `${isActive ? "bg-emerald-600" : ""}`}
+          >
+            {({ isActive }) => (
+              <button
+                className={`btn join-item ${
+                  isActive ? "btn-active bg-emerald-600" : ""
+                }`}
+              >
+                Prepare Jobs+
+              </button>
+            )}
           </NavLink>
-          <NavLink to="/admin/settings">
-            <button className="btn join-item">Settings</button>
+          {/* Anchor Button: /admin/settings */}
+          <NavLink
+            to="/admin/settings"
+            className={({ isActive }) => `${isActive ? "bg-emerald-600" : ""}`}
+          >
+            {({ isActive }) => (
+              <button
+                className={`btn join-item ${
+                  isActive ? "btn-active bg-emerald-600" : ""
+                }`}
+              >
+                Settings
+              </button>
+            )}
           </NavLink>
         </div>
       ) : (
