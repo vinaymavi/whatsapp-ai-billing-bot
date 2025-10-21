@@ -19,7 +19,7 @@ export const Header: FC<{}> = () => {
                   isActive ? "btn-active bg-emerald-600" : ""
                 }`}
               >
-                Runs
+                Jobs
               </button>
             )}
           </NavLink>
