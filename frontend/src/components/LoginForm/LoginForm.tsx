@@ -31,7 +31,7 @@ export const LoginForm: FC<props> = ({
 
   const [isPending, startTransition] = useTransition();
 
-  const { setHeaderTitle } = useContext(Context);
+  const { setHeaderTitle, setIsLogin } = useContext(Context);
 
   const navigate = useNavigate();
   // Basic E.164-like validation: optional leading +, country code cannot start with 0,
@@ -59,12 +59,13 @@ export const LoginForm: FC<props> = ({
         otp,
       });
       setFormStep("optverified");
+      setIsLogin?.(true);
       navigate("/admin/dashboard");
     });
   };
 
   useEffect(() => {
-    setHeaderTitle?.("Chat Bot Admin Login")
+    setHeaderTitle?.("Chat Bot Admin Login");
   }, [setHeaderTitle]);
 
   return (
@@ -80,7 +81,7 @@ export const LoginForm: FC<props> = ({
           }
         `}
       </style>
-  <div className="flex max-w-2xl text-gray-800 dark:text-gray-200 items-center flex-col p-7 shadow-2xl shadow-teal-600 shadow-pulse">
+      <div className="flex max-w-2xl text-gray-800 dark:text-gray-200 items-center flex-col p-7 shadow-2xl shadow-teal-600 shadow-pulse">
         <h1 className="text-3xl pt-4">{title}</h1>
         <h5 className="text-l pt-0">{desc}</h5>
         <form

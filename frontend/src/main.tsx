@@ -6,6 +6,7 @@ import App from "./App.tsx";
 import { LoginForm } from "@components/LoginForm/LoginForm.tsx";
 import { AuthLayout } from "@components/AuthLayout/AuthLayout.tsx";
 import { Dashboard } from "@components/Dashboard/Dashboard.tsx";
+import { NotFound } from "@components/NotFound/NotFound.tsx";
 import { GlobalContext } from "@/context/GlobalContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
@@ -29,6 +30,7 @@ createRoot(document.getElementById("root")!).render(
             <Route path="/admin/dashboard" element={<AuthLayout />}>
               <Route index element={<Dashboard />} />
             </Route>
+            <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
       </BrowserRouter>
