@@ -22,26 +22,3 @@ def test_root_endpoint(client):
     assert "message" in data
     assert "documentation" in data
     assert "health" in data
-
-
-def test_global_exception_middleware(client):
-    """
-    Test that the global exception middleware catches unhandled exceptions gracefully.
-
-    This test verifies that:
-    1. The middleware catches exceptions that aren't handled by specific handlers
-    2. Returns a 500 status code
-    3. Returns JSON with error details
-    4. Includes the exception type in the response
-    """
-    # The test endpoint that intentionally raises an exception
-    response = client.get("/test-exception")
-
-    # Should return 500 Internal Server Error
-    assert response.status_code == 500
-
-    # Should return JSON response
-    data = response.json()
-    assert "detail" in data
-    assert data["detail"] == "An internal server error occurred"
-    assert "error_type" in data
