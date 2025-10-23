@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
 
+from app.celery.celery_app import app
 from app.celery.tasks import process_file
 from app.config import get_settings
 from app.services.gcp_storage import gcp_storage
@@ -146,3 +147,42 @@ async def post_batch(file: UploadFile):
     logger.info(f"/batch processing {task}")
 
     return {"task": task.id, "status": "IN-PROGRESS"}
+
+
+@router.get(
+    "/batch/{task_id}",
+    name="Get Batch Job Status",
+    dependencies=[Depends(current_user)],
+)
+async def get_batch_status(task_id: str):
+    """Get the status of a Celery batch processing task.
+
+    Args:
+        task_id (str): The ID of the task returned by the /batch endpoint
+
+    Returns:
+        dict: Task information including id, status, result, and traceback (if failed)
+
+    Raises:
+        HTTPException: If task is not found or an error occurs
+    """
+
+    task_result = app.AsyncResult(task_id)
+
+    response = {
+        "task_id": task_id,
+        "status": task_result.state,
+    }
+
+    if task_result.state == "PENDING":
+        response["detail"] = "Task has not been executed yet"
+    elif task_result.state == "SUCCESS":
+        response["result"] = task_result.result
+    elif task_result.state == "FAILURE":
+        response["error"] = str(task_result.info)
+        response["traceback"] = task_result.traceback
+    elif task_result.state in ["RETRY", "IN-PROGRESS"]:
+        response["detail"] = "Task is currently being processed"
+
+    logger.info(f"Task status retrieved for {task_id}: {task_result.state}")
+    return response
