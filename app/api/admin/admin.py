@@ -1,19 +1,22 @@
+from os import name
 from typing import Annotated, Any, List
-from venv import logger
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
 
+from app.celery.tasks import process_file
 from app.config import get_settings
 from app.services.jobs_service import job_service
 from app.services.jwt_service import jwt_service
 from app.services.otp_service import otp_service
+from app.utils.global_logging import get_logger
 from app.utils.whatsapp import send_whatsapp_message
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 settings = get_settings()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/admin/token")
+logger = get_logger("Admin Router")
 
 
 class OtpReq(BaseModel):
@@ -118,3 +121,10 @@ async def get_runs(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
+
+
+@router.post("/batch", name="Create Batch Job", dependencies=[Depends(current_user)])
+async def post_batch():
+    task = process_file.delay("gcs_path", "file_type")
+    logger.info(f"/batch processing {task}")
+    return "processing"
