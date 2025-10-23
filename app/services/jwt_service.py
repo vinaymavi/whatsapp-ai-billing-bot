@@ -20,11 +20,11 @@ class JWTService:
 
     def create_token(self, data: Dict, expires_delta: timedelta | None = None) -> str:
         to_encode = data.copy()
-
+        # TODO: this time will be always to UTC so will be inconsistent with user timezone.
         if expires_delta:
             expire = datetime.now(timezone.utc) + expires_delta
         else:
-            expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+            expire = datetime.now(timezone.utc) + timedelta(minutes=120)
 
         to_encode.update({"exp": expire})
         encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)

@@ -1,2 +1,4 @@
 DB_COLLECTION = "background_jobs"
 DEFAULT_PAGE_SIZE = 15
+
+CHUNK_SIZE = 8 * 1024 * 1024  # 8 MB

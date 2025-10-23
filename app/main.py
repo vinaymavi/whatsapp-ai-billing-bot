@@ -7,6 +7,7 @@ for the application. It serves as the entry point for the WhatsApp billing bot.
 
 import json
 import os
+import traceback
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -67,6 +68,45 @@ app = FastAPI(
 PROJECT_ROOT = Path(__file__).parent.parent
 DIST_DIR = PROJECT_ROOT / "dist"
 
+
+# Global Exception Handling Middleware
+async def global_exception_middleware(request: Request, call_next):
+    """
+    Middleware to handle all exceptions gracefully and log stack traces.
+
+    Args:
+        request: The incoming HTTP request
+        call_next: The next middleware/handler in the chain
+
+    Returns:
+        Response or error response if an exception occurs
+    """
+    try:
+        response = await call_next(request)
+        return response
+    except Exception as exc:
+        # Log the exception with full stack trace
+        logger.error(
+            f"Unhandled exception in request: {request.url.path}",
+            exc_info=True,
+        )
+        logger.error(f"Exception type: {type(exc).__name__}")
+        logger.error(f"Exception message: {str(exc)}")
+        logger.error(f"Full stack trace:\n{traceback.format_exc()}")
+
+        # Prepare error response
+        error_response = {
+            "detail": "An internal server error occurred",
+            "error_type": type(exc).__name__,
+        }
+
+        return Response(
+            content=json.dumps(error_response),
+            status_code=500,
+            media_type="application/json",
+        )
+
+
 app.add_middleware(
     # Configure CORS
     CORSMiddleware,
@@ -75,6 +115,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Add global exception handling middleware
+app.middleware("http")(global_exception_middleware)
 
 
 # Include admin router

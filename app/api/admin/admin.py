@@ -1,15 +1,17 @@
-from os import name
+from datetime import timedelta
 from typing import Annotated, Any, List
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
 
 from app.celery.tasks import process_file
 from app.config import get_settings
+from app.services.gcp_storage import gcp_storage
 from app.services.jobs_service import job_service
 from app.services.jwt_service import jwt_service
 from app.services.otp_service import otp_service
+from app.utils.constants import CHUNK_SIZE
 from app.utils.global_logging import get_logger
 from app.utils.whatsapp import send_whatsapp_message
 
@@ -75,7 +77,10 @@ async def post_generate_token(
     is_valid = otp_service.verify_otp(form_data.username, form_data.password)
 
     if is_valid:
-        jwt_token = jwt_service.create_token({"name": "Super Admin", "role": "admin"})
+        jwt_token = jwt_service.create_token(
+            {"name": "Super Admin", "role": "admin"},
+            timedelta(minutes=settings.jwt_expire_time),
+        )
         return Token(access_token=jwt_token, token_type="bearer")
     else:
         raise HTTPException(
@@ -124,7 +129,20 @@ async def get_runs(
 
 
 @router.post("/batch", name="Create Batch Job", dependencies=[Depends(current_user)])
-async def post_batch():
-    task = process_file.delay("gcs_path", "file_type")
+async def post_batch(file: UploadFile):
+    allowed_types = ["text/plain", "application/pdf", "image/jpeg"]
+    if file.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"File type {file.content_type} not supported ",
+        )
+
+    gcp_blob_name = gcp_storage.generate_unique_file_path(
+        "batch-files", file.content_type
+    )
+
+    await gcp_storage.upload_stream(file, gcp_blob_name, CHUNK_SIZE)
+    task = process_file.delay(gcp_blob_name, file.content_type)
     logger.info(f"/batch processing {task}")
-    return "processing"
+
+    return {"task": task.id, "status": "IN-PROGRESS"}
