@@ -55,7 +55,7 @@ class Settings(BaseSettings):
     # Jwt
     jwt_secret: str = Field(alias="JWT_SECRET_KEY")
     jwt_algo: str = Field(alias="JWT_ALGORITHM")
-    jwt_expire_time: int = Field(alias="JWT_ACCESS_TOKEN_EXPIRE_MINUTES")
+    jwt_expire_time: int = Field(default=600, alias="JWT_ACCESS_TOKEN_EXPIRE_MINUTES")
 
     model_config = {
         "env_file": ".env",

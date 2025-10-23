@@ -150,5 +150,45 @@ class GCPStorage:
             logger.error(f"Error when uploading stream to GCS error: {e}")
             raise
 
+    def read_stream(
+        self,
+        blob_name: str,
+        chunk_size: int = 5 * 1024 * 1024,
+    ) -> str:
+        """
+        Read a file stream from GCS bucket and save it to a temporary path.
+
+        Args:
+            blob_name: Path to the file in GCS bucket (e.g., 'batch-files/550e8400-e29b-41d4-a716-446655440000.pdf')
+            chunk_size: Size of chunks to read at a time (default: 5MB)
+
+        Returns:
+            str: Complete temporary file path where the file was saved
+
+        Raises:
+            Exception: If error occurs during download or file operations
+        """
+        try:
+            # Extract file extension from blob name
+            file_extension = blob_name.split(".")[-1]
+            temp_file_path = generate_temp_file_path(file_extension)
+
+            blob = self.bucket.blob(blob_name)
+
+            # Download file in chunks to handle large files efficiently
+            with open(temp_file_path, "wb") as f:
+                with blob.open("rb") as source_file:
+                    while True:
+                        chunk = source_file.read(chunk_size)
+                        if not chunk:
+                            break
+                        f.write(chunk)
+
+            logger.info(f"File streamed from GCS {blob_name} to {temp_file_path}")
+            return temp_file_path
+        except Exception as e:
+            logger.error(f"Error when reading stream from GCS error: {e}")
+            raise
+
 
 gcp_storage = GCPStorage()

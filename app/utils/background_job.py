@@ -33,6 +33,13 @@ class DocumentJob(Job):
     doc_hash: str
 
 
+class WebDocumentJob(BaseModel):
+    user_id: str
+    doc_filename: str
+    doc_mime: str
+    gcs_path: str
+
+
 DB_COLLECTION = "background_jobs"
 
 logger = get_logger(__name__)
@@ -154,3 +161,66 @@ def process_document(document: DocumentJob):
             document.sender_id,
             "An error occurred while processing your document. Please try again later.",
         )
+
+
+def process_web_document(
+    web_document: WebDocumentJob, gcs_file_path: str, temp_file_path: str
+):
+    """
+    Process a document uploaded from the web application.
+
+    Args:
+        web_document: WebDocumentJob containing document metadata
+        gcs_file_path: Path to the file in GCS
+        temp_file_path: Temporary local file path
+    """
+    try:
+        logger.info(f"Processing web document job: {web_document.gcs_path}")
+        job = BackgroundJob()
+        job.add_job_to_db(
+            web_document.model_dump() | {"status": str(JobStatus.IN_PROGRESS)}
+        )
+        logger.info(f"Started processing web document job: {job.job_id}")
+
+        job.update_job_progress({"message": "Validating document..."})
+
+        # Process based on document type
+        if web_document.doc_mime == "application/pdf":
+            # Index document in Vector DB
+            job.update_job_progress({"message": "Indexing the document in pinecone..."})
+            bill_data = DocumentCreator.create_document_from_pdf(
+                temp_file_path, gcs_file_path
+            )
+            job.update_job_progress({"message": "Indexed the document in pinecone."})
+
+            # Update job status based on processing result
+            if bill_data.get("processed", False):
+                job.update_job_status(JobStatus.DONE)
+                job.update_job_progress({"message": "Document processing completed."})
+                logger.info(
+                    f"Successfully processed web document: {web_document.doc_filename}"
+                )
+            else:
+                job.update_job_status(JobStatus.FAILED)
+                job.update_job_progress({"message": "Failed to process the document."})
+                logger.error(
+                    f"Failed to process web document: {web_document.doc_filename}"
+                )
+        else:
+            # Handle unsupported document types
+            logger.info(
+                f"Unsupported document type for web upload: {web_document.doc_mime}"
+            )
+            job.update_job_status(JobStatus.FAILED)
+            job.update_job_progress({"message": "Unsupported document type."})
+
+    except Exception as e:
+        logger.error(f"Error processing web document job {web_document.gcs_path}: {e}")
+        job.update_job_status(JobStatus.FAILED)
+        job.update_job_progress(
+            {"message": "An error occurred while processing the document."}
+        )
+    finally:
+        # Clean up temporary file
+        job.update_job_progress({"message": "Cleaning up temporary files..."})
+        remove_file_if_exists(temp_file_path)

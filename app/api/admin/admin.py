@@ -129,8 +129,8 @@ async def get_runs(
         )
 
 
-@router.post("/batch", name="Create Batch Job", dependencies=[Depends(current_user)])
-async def post_batch(file: UploadFile):
+@router.post("/batch", name="Create Batch Job")
+async def post_batch(file: UploadFile, user: User = Depends(current_user)):
     allowed_types = ["text/plain", "application/pdf", "image/jpeg"]
     if file.content_type not in allowed_types:
         raise HTTPException(
@@ -143,7 +143,9 @@ async def post_batch(file: UploadFile):
     )
 
     await gcp_storage.upload_stream(file, gcp_blob_name, CHUNK_SIZE)
-    task = process_file.delay(gcp_blob_name, file.content_type)
+    task = process_file.delay(
+        gcp_blob_name, file.content_type, user.name, file.filename
+    )
     logger.info(f"/batch processing {task}")
 
     return {"task": task.id, "status": "IN-PROGRESS"}
