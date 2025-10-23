@@ -206,8 +206,15 @@ resource "google_artifact_registry_repository" "gcp_docker_repo" {
     team      = "devops"
     terraform = "true"
   }
-}
+  cleanup_policies {
+    id     = "keep-last-3-images"
+    action = "KEEP"
 
+    most_recent_versions {
+      keep_count = 3
+    }
+  }
+}
 
 resource "google_service_account" "cloudrun_deployer" {
   account_id   = var.sa_cloudrun_deployer
