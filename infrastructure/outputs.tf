@@ -33,3 +33,7 @@ output "gcp_federation_pool" {
 output "gcp_federation_provider" {
   value = google_iam_workload_identity_pool_provider.github_provider.name
 }
+
+output "gcp_bucket" {
+  value = google_storage_bucket.chabot-celery-files.name
+}

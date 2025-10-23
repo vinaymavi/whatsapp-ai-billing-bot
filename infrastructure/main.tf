@@ -283,6 +283,20 @@ resource "google_service_account_iam_member" "github_act_as_deployer" {
   member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github_pool_1.name}/*"
 }
 
+# GCS bucket with ttl 
+
+resource "google_storage_bucket" "chabot-celery-files" {
+  name     = "${var.gcp_project_id}-chabot-celery-files"
+  location = var.gcp_zone_india
+  lifecycle_rule {
+    action {
+      type = "Delete"
+    }
+    condition {
+      age = 7
+    }
+  }
+}
 # Github Environment Variables for GCP
 
 #  GCP workload identity pool name
@@ -307,4 +321,28 @@ resource "github_actions_environment_variable" "test_GCP_DOCKER_REGISTRY_URI" {
   environment   = github_repository_environment.test.environment
   variable_name = "GCP_DOCKER_REGISTRY_URI"
   value         = google_artifact_registry_repository.gcp_docker_repo.registry_uri
+}
+
+resource "google_project_service" "firestore_api" {
+  project            = var.gcp_project_id
+  service            = "firestore.googleapis.com"
+  disable_on_destroy = false
+}
+
+resource "google_firestore_database" "default" {
+  project     = var.gcp_project_id
+  name        = "(default)"
+  location_id = var.gcp_zone_india
+  type        = "FIRESTORE_NATIVE"
+
+  depends_on = [google_project_service.firestore_api]
+}
+
+resource "google_firestore_field" "celery_ttl" {
+  project    = var.gcp_project_id
+  database   = google_firestore_database.default.name
+  collection = "celery"
+  field      = "expires_at"
+  ttl_config {
+  }
 }
