@@ -29,6 +29,7 @@ jobs:
       LOG_LEVEL: ${{ vars.LOG_LEVEL }}
       API_HOST: ${{ vars.API_HOST }}
       API_PORT: ${{ vars.API_PORT }}
+      VITE_API_SERVER_URL: ${{ vars.VITE_API_SERVER_URL }}
       WEBHOOK_TOKEN: ${{ secrets.WEBHOOK_TOKEN }}
       WHATSAPP_API_TOKEN: ${{ secrets.WHATSAPP_API_TOKEN }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -96,11 +97,16 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker image
+      - name: Build Docker images
         run: |
           docker build -t whatsapp-ai-billing-bot:${{ github.sha }} .
           docker build -t whatsapp-ai-billing-bot:latest .
+          docker build -f Dockerfile.celery -t whatsapp-ai-billing-bot-celery:${{ github.sha }} .
+          docker build -f Dockerfile.celery -t whatsapp-ai-billing-bot-celery:latest .
 
-      - name: Test Docker image
+      - name: Test Docker images
         run: |
           docker images | grep whatsapp-ai-billing-bot
+          echo "✅ Main app image built successfully"
+          docker images | grep whatsapp-ai-billing-bot-celery
+          echo "✅ Celery worker image built successfully"
