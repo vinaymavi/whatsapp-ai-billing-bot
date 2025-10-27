@@ -79,10 +79,4 @@ jobs:
       - name: Verify deployment
         run: |
           echo "Celery worker deployed to Cloud Run Jobs successfully!"
-          gcloud run jobs describe ${{ env.GCP_IMAGE_NAME }} --region=${{ env.GCP_LOCATION }}
-
-      - name: Execute Celery Job (Optional Test Run)
-        run: |
-          echo "Executing Celery job to test deployment..."
-          gcloud run jobs execute ${{ env.GCP_IMAGE_NAME }} --region=${{ env.GCP_LOCATION }} --wait
-          echo "Job execution completed. Check logs for details."
+          gcloud run jobs describe ${{ env.GCP_IMAGE_NAME }} --region=${{ env.GCP_LOCATION }}      
