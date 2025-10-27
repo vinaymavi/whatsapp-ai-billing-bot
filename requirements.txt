@@ -10,6 +10,8 @@ aiohttp-retry==2.9.1
     # via pinecone
 aiosignal==1.4.0
     # via aiohttp
+amqp==5.3.1
+    # via kombu
 annotated-types==0.7.0
     # via pydantic
 anyio==4.11.0
@@ -22,10 +24,14 @@ attrs==25.4.0
     # via aiohttp
 bcrypt==5.0.0
     # via passlib
+billiard==4.2.2
+    # via celery
 cachecontrol==0.14.3
     # via firebase-admin
 cachetools==6.2.1
     # via google-auth
+celery==5.5.3
+    # via whatsapp-ai-billing-bot (pyproject.toml)
 certifi==2025.10.5
     # via
     #   httpcore
@@ -39,9 +45,19 @@ charset-normalizer==3.4.4
     # via requests
 click==8.3.0
     # via
+    #   celery
+    #   click-didyoumean
+    #   click-plugins
+    #   click-repl
     #   rich-toolkit
     #   typer
     #   uvicorn
+click-didyoumean==0.3.1
+    # via celery
+click-plugins==1.1.1.2
+    # via celery
+click-repl==0.3.0
+    # via celery
 colorlog==6.10.1
     # via whatsapp-ai-billing-bot (pyproject.toml)
 coverage==7.11.0
@@ -80,6 +96,8 @@ google-api-core==2.26.0
     #   google-api-python-client
     #   google-cloud-core
     #   google-cloud-firestore
+    #   google-cloud-monitoring
+    #   google-cloud-pubsub
     #   google-cloud-storage
 google-api-python-client==2.184.0
     # via firebase-admin
@@ -90,6 +108,8 @@ google-auth==2.41.1
     #   google-auth-httplib2
     #   google-cloud-core
     #   google-cloud-firestore
+    #   google-cloud-monitoring
+    #   google-cloud-pubsub
     #   google-cloud-storage
 google-auth-httplib2==0.2.0
     # via google-api-python-client
@@ -101,6 +121,10 @@ google-cloud-firestore==2.20.2
     # via
     #   whatsapp-ai-billing-bot (pyproject.toml)
     #   firebase-admin
+google-cloud-monitoring==2.28.0
+    # via whatsapp-ai-billing-bot (pyproject.toml)
+google-cloud-pubsub==2.31.1
+    # via whatsapp-ai-billing-bot (pyproject.toml)
 google-cloud-storage==3.1.0
     # via
     #   whatsapp-ai-billing-bot (pyproject.toml)
@@ -114,13 +138,22 @@ google-resumable-media==2.7.2
 googleapis-common-protos==1.70.0
     # via
     #   google-api-core
+    #   grpc-google-iam-v1
     #   grpcio-status
+grpc-google-iam-v1==0.14.3
+    # via google-cloud-pubsub
 grpcio==1.75.1
     # via
     #   google-api-core
+    #   google-cloud-monitoring
+    #   google-cloud-pubsub
+    #   googleapis-common-protos
+    #   grpc-google-iam-v1
     #   grpcio-status
 grpcio-status==1.75.1
-    # via google-api-core
+    # via
+    #   google-api-core
+    #   google-cloud-pubsub
 h11==0.16.0
     # via
     #   httpcore
@@ -147,6 +180,8 @@ idna==3.11
     #   httpx
     #   requests
     #   yarl
+importlib-metadata==8.7.0
+    # via opentelemetry-api
 iniconfig==2.1.0
     # via pytest
 jinja2==3.1.6
@@ -157,6 +192,8 @@ jsonpatch==1.33
     # via langchain-core
 jsonpointer==3.0.0
     # via jsonpatch
+kombu==5.5.4
+    # via celery
 langchain==0.3.25
     # via whatsapp-ai-billing-bot (pyproject.toml)
 langchain-core==0.3.79
@@ -199,10 +236,20 @@ openai==1.78.1
     #   langchain-openai
 openpyxl==3.1.2
     # via whatsapp-ai-billing-bot (pyproject.toml)
+opentelemetry-api==1.38.0
+    # via
+    #   google-cloud-pubsub
+    #   opentelemetry-sdk
+    #   opentelemetry-semantic-conventions
+opentelemetry-sdk==1.38.0
+    # via google-cloud-pubsub
+opentelemetry-semantic-conventions==0.59b0
+    # via opentelemetry-sdk
 orjson==3.11.3
     # via langsmith
 packaging==24.2
     # via
+    #   kombu
     #   langchain-core
     #   langsmith
     #   pinecone-plugin-assistant
@@ -231,6 +278,8 @@ pluggy==1.6.0
     # via
     #   pytest
     #   pytest-cov
+prompt-toolkit==3.0.52
+    # via click-repl
 propcache==0.4.1
     # via
     #   aiohttp
@@ -239,11 +288,16 @@ proto-plus==1.26.1
     # via
     #   google-api-core
     #   google-cloud-firestore
+    #   google-cloud-monitoring
+    #   google-cloud-pubsub
 protobuf==6.33.0
     # via
     #   google-api-core
     #   google-cloud-firestore
+    #   google-cloud-monitoring
+    #   google-cloud-pubsub
     #   googleapis-common-protos
+    #   grpc-google-iam-v1
     #   grpcio-status
     #   proto-plus
 pyasn1==0.4.8
@@ -296,6 +350,7 @@ pytest-mock==3.15.1
 python-dateutil==2.9.0.post0
     # via
     #   whatsapp-ai-billing-bot (pyproject.toml)
+    #   celery
     #   pendulum
     #   pinecone
 python-dotenv==1.1.0
@@ -379,6 +434,9 @@ typing-extensions==4.15.0
     #   grpcio
     #   langchain-core
     #   openai
+    #   opentelemetry-api
+    #   opentelemetry-sdk
+    #   opentelemetry-semantic-conventions
     #   pinecone
     #   pydantic
     #   pydantic-core
@@ -392,7 +450,9 @@ typing-inspection==0.4.2
     #   pydantic
     #   pydantic-settings
 tzdata==2025.2
-    # via pendulum
+    # via
+    #   kombu
+    #   pendulum
 uritemplate==4.2.0
     # via google-api-python-client
 urllib3==2.5.0
@@ -410,11 +470,20 @@ uvicorn==0.34.2
     #   fastapi-cloud-cli
 uvloop==0.22.1
     # via uvicorn
+vine==5.1.0
+    # via
+    #   amqp
+    #   celery
+    #   kombu
 watchfiles==1.1.1
     # via uvicorn
+wcwidth==0.2.14
+    # via prompt-toolkit
 websockets==15.0.1
     # via uvicorn
 yarl==1.22.0
     # via aiohttp
+zipp==3.23.0
+    # via importlib-metadata
 zstandard==0.23.0
     # via langsmith

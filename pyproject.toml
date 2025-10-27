@@ -5,7 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "celery[gcpubsub]>=5.5.3",
+    "celery>=5.5.3",
     "colorlog>=6.9.0",
     "fastapi[standard]==0.115.12",
     "firebase-admin>=6.8.0",
@@ -41,3 +41,11 @@ dependencies = [
     "uuid>=1.30",
     "uvicorn[standard]==0.34.2",
 ]
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit>=3.3.0",
+    "black>=23.3.0",
+    "isort>=5.12.0",
+]
+# Test comment
