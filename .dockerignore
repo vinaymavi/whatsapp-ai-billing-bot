@@ -39,7 +39,7 @@ LICENSE
 Dockerfile
 .dockerignore
 
-# Project temp files 
+# Project temp files
 *.log
 *.tmp
 media/

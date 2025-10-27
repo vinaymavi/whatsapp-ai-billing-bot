@@ -15,10 +15,22 @@ class VectorDBInvoiceData(BaseModel):
     customer_name: str = Field(..., description="The name of the customer")
     customer_address: str = Field(..., description="The address of the customer")
     invoice_id: str = Field(..., description="The unique identifier for the invoice")
-    invoice_category: str = Field(..., description="The category of the invoice example: Electronics, Furniture, Cloud Service, Entertainment Service, Development Service, Food, Etc.")
-    invoice_date: str = Field(..., description="The date of the invoice in format YYYY-MM-DD")
+    invoice_category: str = Field(
+        ...,
+        description="The category of the invoice example: Electronics, Furniture, Cloud Service, Entertainment Service, Development Service, Food, Etc.",
+    )
+    invoice_date: str = Field(
+        ..., description="The date of the invoice in format YYYY-MM-DD"
+    )
     invoice_items: List[str] = Field(..., description="List of items in the invoice")
-    invoice_currency: str = Field(..., description="The currency of the invoice amount. Like CAD, USD, INR etc.")
+    invoice_currency: str = Field(
+        ..., description="The currency of the invoice amount. Like CAD, USD, INR etc."
+    )
     provider: str = Field(..., description="The provider of the invoice")
-    status: str = Field(..., description="The current status of the invoice. Like PAID or UNPAID")
-    summary: str = Field(..., description="A brief summary of the invoice combination of line items and other fields")
+    status: str = Field(
+        ..., description="The current status of the invoice. Like PAID or UNPAID"
+    )
+    summary: str = Field(
+        ...,
+        description="A brief summary of the invoice combination of line items and other fields",
+    )

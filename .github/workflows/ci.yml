@@ -53,7 +53,7 @@ jobs:
         run: uv sync
 
       - name: Check specific env var
-        run: echo "environment = $ENVIRONMENT"      
+        run: echo "environment = $ENVIRONMENT"
 
       - name: Print all environment variables
         run: env

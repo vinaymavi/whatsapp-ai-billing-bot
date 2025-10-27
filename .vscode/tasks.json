@@ -67,6 +67,34 @@
                 "panel": "new"
             },
             "problemMatcher": []
+        },
+        {
+            "label": "Run Pre-commit",
+            "type": "shell",
+            "command": "${workspaceFolder}/.venv/bin/uv run pre-commit run --all-files",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Setup Pre-commit Hooks",
+            "type": "shell",
+            "command": "${workspaceFolder}/setup-precommit.sh",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
         }
     ]
 }

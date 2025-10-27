@@ -188,8 +188,9 @@ def process_web_document(
         if web_document.doc_mime == "application/pdf":
             # Index document in Vector DB
             job.update_job_progress({"message": "Indexing the document in pinecone..."})
+            gcp_document = gcp_storage.move_to_documents_folder(gcs_file_path)
             bill_data = DocumentCreator.create_document_from_pdf(
-                temp_file_path, gcs_file_path
+                temp_file_path, gcp_document
             )
             job.update_job_progress({"message": "Indexed the document in pinecone."})
 

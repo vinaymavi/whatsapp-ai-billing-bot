@@ -190,5 +190,81 @@ class GCPStorage:
             logger.error(f"Error when reading stream from GCS error: {e}")
             raise
 
+    def move_blob(self, source_blob_name: str, destination_blob_name: str) -> str:
+        """
+        Move an existing blob to a new location and delete the original.
+
+        Args:
+            source_blob_name: Current path/name of the blob in GCS
+            destination_blob_name: New path/name for the blob in GCS
+
+        Returns:
+            str: The new blob location (destination_blob_name)
+
+        Raises:
+            Exception: If error occurs during move operation
+        """
+        try:
+            # Get reference to source blob
+            source_blob = self.bucket.blob(source_blob_name)
+
+            # Check if source blob exists
+            if not source_blob.exists():
+                raise FileNotFoundError(
+                    f"Source blob {source_blob_name} does not exist"
+                )
+
+            # Copy the blob to the new location
+            self.bucket.copy_blob(source_blob, self.bucket, destination_blob_name)
+
+            # Delete the original blob
+            source_blob.delete()
+
+            logger.info(
+                f"Blob moved from {source_blob_name} to {destination_blob_name}"
+            )
+            return destination_blob_name
+        except Exception as e:
+            logger.error(
+                f"Error when moving blob from {source_blob_name} to {destination_blob_name}: {e}"
+            )
+            raise
+
+    def move_to_documents_folder(self, source_blob_name: str) -> str:
+        """
+        Move an existing blob to the documents folder with a unique filename.
+
+        Args:
+            source_blob_name: Current path/name of the blob in GCS
+
+        Returns:
+            str: The new blob location in documents folder
+
+        Raises:
+            Exception: If error occurs during move operation
+        """
+        try:
+            # Extract file extension from source blob name
+            file_parts = source_blob_name.split(".")
+            if len(file_parts) > 1:
+                file_extension = file_parts[-1]
+            else:
+                # If no extension, use empty string
+                file_extension = ""
+
+            # Generate unique path in documents folder
+            destination_blob_name = self.generate_unique_file_path(
+                "documents", file_extension
+            )
+
+            # Use existing move_blob method to perform the move
+            return self.move_blob(source_blob_name, destination_blob_name)
+
+        except Exception as e:
+            logger.error(
+                f"Error when moving blob {source_blob_name} to documents folder: {e}"
+            )
+            raise
+
 
 gcp_storage = GCPStorage()

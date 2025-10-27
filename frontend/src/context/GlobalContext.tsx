@@ -16,7 +16,7 @@ export const Context = createContext<Partial<ContextData>>({});
 export const GlobalContext: FC<Props> = ({ children }: Props) => {
   const [headerTitle, setHeaderTitle] = useState<string>("");
   const [isLogin, setIsLogin] = useState<boolean>(false);
-  
+
   const contextData = {
     headerTitle,
     setHeaderTitle,

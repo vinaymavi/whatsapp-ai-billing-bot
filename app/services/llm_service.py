@@ -14,6 +14,7 @@ from typing import Any, Dict, List
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import BaseMessage
 from langchain_core.prompts import ChatPromptTemplate
+
 # Import supported LangChain LLMs here
 from langchain_openai import ChatOpenAI
 from pydantic import BaseModel
@@ -25,12 +26,13 @@ from app.utils.types import LLMResponse  # Import the LLMResponse type
 logger = logging.getLogger(__name__)
 
 
-class LLMService:    
+class LLMService:
 
     """
     LLMService dynamically selects and initializes an LLM instance
     based on the LLM_PROVIDER environment variable.
     """
+
     def __init__(self):
         self.provider = os.getenv("LLM_PROVIDER", "openai").lower()
         self.model_name = os.getenv("OPENAI_MODEL", "gpt-5-mini")
@@ -38,17 +40,16 @@ class LLMService:
         self.llm = self._get_llm_instance()
 
     def _get_llm_instance(self) -> BaseChatModel:
-            """
-            Returns an LLM instance based on the provider.
-            Extend this method to support more providers.
-            """
-            if self.provider == "openai":
-                # Reads OpenAI API key from env var OPENAI_API_KEY
-                return ChatOpenAI(model=self.model_name, max_completion_tokens=20000)
-            # Add more providers here as needed
-            raise ValueError(f"Unsupported LLM provider: {self.provider}")
-        
-        
+        """
+        Returns an LLM instance based on the provider.
+        Extend this method to support more providers.
+        """
+        if self.provider == "openai":
+            # Reads OpenAI API key from env var OPENAI_API_KEY
+            return ChatOpenAI(model=self.model_name, max_completion_tokens=20000)
+        # Add more providers here as needed
+        raise ValueError(f"Unsupported LLM provider: {self.provider}")
+
     def _get_llm_instance_with_tools(self) -> BaseChatModel:
         """
         Returns an LLM instance based on the provider.
@@ -56,7 +57,9 @@ class LLMService:
         """
         if self.provider == "openai":
             # Reads OpenAI API key from env var OPENAI_API_KEY
-            return ChatOpenAI(model=self.model_name, max_completion_tokens=20000).bind_tools(llm_tools)
+            return ChatOpenAI(
+                model=self.model_name, max_completion_tokens=20000
+            ).bind_tools(llm_tools)
         # Add more providers here as needed
         raise ValueError(f"Unsupported LLM provider: {self.provider}")
 
@@ -64,43 +67,40 @@ class LLMService:
         """
         Generate a response from the LLM for the given prompt.
         """
-        logger.info(f"Generating response using {self.provider} provider with model {self.model_name}")
+        logger.info(
+            f"Generating response using {self.provider} provider with model {self.model_name}"
+        )
         logger.info(f"Prompt: {prompt}")
-        resp =  self.llm_with_tools.invoke(prompt, **kwargs)
+        resp = self.llm_with_tools.invoke(prompt, **kwargs)
         logger.info(f"{resp}")
         return self._send_resp(resp)
-    
-    def _send_resp(self, resp:Any) -> LLMResponse:
+
+    def _send_resp(self, resp: Any) -> LLMResponse:
         """
-        Send the response back to the user.        
+        Send the response back to the user.
         """
-        
-        if hasattr(resp, 'tool_calls') and isinstance(resp.tool_calls, list) and len(resp.tool_calls) > 0:
-            return LLMResponse(
-                type="tool_calls",
-                tool_calls=resp.tool_calls
-            )
-        elif hasattr(resp, 'content') and len(resp.content) > 0:
+
+        if (
+            hasattr(resp, "tool_calls")
+            and isinstance(resp.tool_calls, list)
+            and len(resp.tool_calls) > 0
+        ):
+            return LLMResponse(type="tool_calls", tool_calls=resp.tool_calls)
+        elif hasattr(resp, "content") and len(resp.content) > 0:
             content_length = len(resp.content) if isinstance(resp.content, str) else 0
             logger.info(f"Response content length: {content_length}")
-            return LLMResponse(
-                type="message",
-                text=resp.content
-            )
-            
-        return LLMResponse(
-            type="message",
-            text=str(resp)
-        )
+            return LLMResponse(type="message", text=resp.content)
+
+        return LLMResponse(type="message", text=str(resp))
 
     def query(self, prompt: List[BaseMessage], **kwargs) -> LLMResponse:
         """
         Query the LLM with a specific prompt.
-        """       
+        """
         logger.info(f" Prompt : {prompt}")
         return self._generate(prompt, **kwargs)
-    
-    def format_and_query(self, messages:List[BaseMessage]) -> LLMResponse:
+
+    def format_and_query(self, messages: List[BaseMessage]) -> LLMResponse:
         return self.query(messages)
 
     def query_with_structured_output(self, messages: str, structure: BaseModel):
@@ -109,6 +109,7 @@ class LLMService:
         resp = structured_llm.invoke(messages)
         logger.info(f"Structured response: {resp}")
         return resp
+
 
 # Singleton instance for app-wide use
 llm_service = LLMService()

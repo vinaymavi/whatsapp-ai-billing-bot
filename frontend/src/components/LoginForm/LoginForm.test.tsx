@@ -39,10 +39,10 @@ describe('LoginForm', () => {
     renderLoginForm(props);
 
     const form = screen.getByRole('form');
-    
+
     const preventDefault = vi.fn();
     const mockEvent = createEvent.submit(form);
-    mockEvent.preventDefault = preventDefault;    
+    mockEvent.preventDefault = preventDefault;
     fireEvent(form, mockEvent);
 
     expect(mockEvent.preventDefault).toHaveBeenCalled();

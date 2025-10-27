@@ -15,7 +15,7 @@ export function Dashboard() {
       setSData(data);
     });
   }, []);
-  
+
   return (
     <div>
       <div className="overflow-x-auto">

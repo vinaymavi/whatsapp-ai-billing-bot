@@ -1,0 +1,33 @@
+FROM python:3.13-slim
+
+WORKDIR /app
+
+# Install system dependencies that might be needed for document processing
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy only dependency files first for better layer caching
+COPY pyproject.toml requirements.txt uv.lock* ./
+
+# Copy the application code
+COPY app/ /app/app/
+
+# Upgrade pip and install runtime dependencies. Use requirements.txt (exists in repo)
+# --no-cache-dir keeps the image smaller
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Create directory for temporary files
+RUN mkdir -p /tmp
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV TEMP_FILE_PATH=/tmp
+
+# Expose health check port (optional, for monitoring)
+EXPOSE 5555
+
+# Command to run Celery worker
+CMD ["celery", "-A", "app.celery.celery_app", "worker", "--loglevel=info", "--concurrency=4"]

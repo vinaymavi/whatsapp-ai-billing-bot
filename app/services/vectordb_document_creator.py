@@ -24,6 +24,7 @@ class DocumentCreator:
         pdf_info = process_pdf_document(pdf_path)
 
         if not pdf_info.get("processed"):
+            logger.warning(f"Not able to process provided {pdf_info} file")
             return pdf_info
         llm_resp: VectorDBInvoiceData = llm_service.query_with_structured_output(
             pdf_info.get("text", ""), VectorDBInvoiceData

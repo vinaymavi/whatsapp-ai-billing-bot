@@ -27,7 +27,7 @@ COPY --from=frontend-build /app/dist /app/dist
 # --no-cache-dir keeps the image smaller
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
-    
+
 EXPOSE ${PORT:-8000}
 
 # Use python -m uvicorn so we don't rely on a shell entrypoint being present in PATH

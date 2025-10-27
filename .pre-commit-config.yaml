@@ -1,0 +1,14 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+  # UV dependency sync hook - runs when pyproject.toml or uv.lock changes
+  - repo: local
+    hooks:
+      - id: uv-sync-requirements
+        name: UV Sync Requirements (compile pyproject.toml -> requirements.txt)
+        entry: bash
+        args: ['-c', 'echo "🔄 Activating .venv and updating requirements.txt from pyproject.toml..."; source .venv/bin/activate; uv pip compile pyproject.toml -o requirements.txt; echo "✅ requirements.txt updated"; git add requirements.txt']
+        language: system
+        files: ^(pyproject\.toml|uv\.lock)$
+        pass_filenames: false
+        stages: [pre-commit]

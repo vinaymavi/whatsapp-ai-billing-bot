@@ -1,5 +1,5 @@
 resource "github_repository" "github_repo" {
-  name          = "whatsapp-ai-billing-bot"                                        # Exact repo name  
+  name          = "whatsapp-ai-billing-bot"                                        # Exact repo name
   description   = "WhatsApp AI Billing Bot: Revolutionize Your Invoice Management" # Matches current description
   visibility    = "public"                                                         # Repo is public
   auto_init     = false                                                            # Repo already exists, so no initialization needed
@@ -194,7 +194,7 @@ resource "github_actions_environment_secret" "test_JWT_SECRET_KEY" {
 }
 
 
-# Google cloud 
+# Google cloud
 
 resource "google_artifact_registry_repository" "gcp_docker_repo" {
   description   = "GCP cloud docker registry"
@@ -290,7 +290,7 @@ resource "google_service_account_iam_member" "github_act_as_deployer" {
   member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github_pool_1.name}/*"
 }
 
-# GCS bucket with ttl 
+# GCS bucket with ttl
 
 resource "google_storage_bucket" "chabot-celery-files" {
   name     = "${var.gcp_project_id}-chabot-celery-files"
