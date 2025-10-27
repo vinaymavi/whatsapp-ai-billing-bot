@@ -28,8 +28,7 @@ jobs:
       DEBUG: ${{ vars.DEBUG }}
       LOG_LEVEL: ${{ vars.LOG_LEVEL }}
       API_HOST: ${{ vars.API_HOST }}
-      API_PORT: ${{ vars.API_PORT }}
-      VITE_API_SERVER_URL: ${{ vars.VITE_API_SERVER_URL }}
+      API_PORT: ${{ vars.API_PORT }}      
       WEBHOOK_TOKEN: ${{ secrets.WEBHOOK_TOKEN }}
       WHATSAPP_API_TOKEN: ${{ secrets.WHATSAPP_API_TOKEN }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -65,6 +64,8 @@ jobs:
   test-frontend:
     runs-on: ubuntu-latest
     environment: test
+    env:
+      VITE_API_SERVER_URL: ${{ vars.VITE_API_SERVER_URL }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
