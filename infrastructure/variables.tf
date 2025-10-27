@@ -38,7 +38,7 @@ variable "test_env_vars" {
     LOG_LEVEL                               = string
     API_HOST                                = string
     API_PORT                                = number
-    VITE_API_SERVER_URL                     = string
+    VITE_API_SERVER                         = string
   })
 }
 

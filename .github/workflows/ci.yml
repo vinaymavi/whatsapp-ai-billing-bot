@@ -65,7 +65,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: test
     env:
-      VITE_API_SERVER_URL: ${{ vars.VITE_API_SERVER_URL }}
+      VITE_API_SERVER: ${{ vars.VITE_API_SERVER}}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4

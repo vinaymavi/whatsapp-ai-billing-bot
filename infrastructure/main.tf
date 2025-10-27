@@ -141,11 +141,11 @@ resource "github_actions_environment_variable" "test_API_PORT" {
   variable_name = "API_PORT"
   value         = tostring(var.test_env_vars.API_PORT)
 }
-resource "github_actions_environment_variable" "test_VITE_API_SERVER_URL" {
+resource "github_actions_environment_variable" "test_VITE_API_SERVER" {
   repository    = github_repository.github_repo.name
   environment   = github_repository_environment.test.environment
-  variable_name = "VITE_API_SERVER_URL"
-  value         = var.test_env_vars.VITE_API_SERVER_URL
+  variable_name = "VITE_API_SERVER"
+  value         = var.test_env_vars.VITE_API_SERVER
 }
 
 # Sensitive secrets
