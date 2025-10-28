@@ -388,108 +388,112 @@ resource "google_project_service" "cloudbuild_api" {
   disable_on_destroy = false
 }
 
-# Cloud Build Trigger for Main Application
-resource "google_cloudbuild_trigger" "main_app_trigger" {
-  project     = var.gcp_project_id
-  name        = "whatsapp-ai-agent-deploy"
-  description = "Deploy WhatsApp AI Agent to Cloud Run on push to main branch"
+# Example Cloud Build Trigger Configuration
+# Uncomment and customize the triggers below once you have created your cloudbuild.yaml files
+# These triggers will automatically build and deploy your application on push to main branch
 
-  github {
-    owner = var.git_hub_owner
-    name  = github_repository.github_repo.name
-    push {
-      branch = "^main$"
-    }
-  }
-
-  filename = "cloudbuild.yaml"
-
-  substitutions = {
-    _GCP_LOCATION                           = var.gcp_zone_india
-    _ARTIFACT_REGISTRY_REPO                 = var.gcp_docker_repo_name
-    _IMAGE_NAME                             = "whatsapp-ai-agent"
-    _SERVICE_NAME                           = "whatsapp-ai-agent"
-    _ENVIRONMENT                            = var.test_env_vars.ENVIRONMENT
-    _GCP_STORAGE_BUCKET                     = var.test_env_vars.GCP_STORAGE_BUCKET
-    _FIRESTORE_COLLECTION_CHAT_HISTORY      = var.test_env_vars.FIRESTORE_COLLECTION_CHAT_HISTORY
-    _FIRESTORE_COLLECTION_PROCESSED_MESSAGES = var.test_env_vars.FIRESTORE_COLLECTION_PROCESSED_MESSAGES
-    _WHATSAPP_PHONE_NUMBER_ID               = var.test_env_vars.WHATSAPP_PHONE_NUMBER_ID
-    _WHATSAPP_BUSINESS_ACCOUNT_ID           = var.test_env_vars.WHATSAPP_BUSINESS_ACCOUNT_ID
-    _OPENAI_MODEL                           = var.test_env_vars.OPENAI_MODEL
-    _LANGCHAIN_TRACING_V2                   = tostring(var.test_env_vars.LANGCHAIN_TRACING_V2)
-    _PINECONE_INDEX_NAME                    = var.test_env_vars.PINECONE_INDEX_NAME
-    _TEMP_FILE_PATH                         = var.test_env_vars.TEMP_FILE_PATH
-    _JWT_ALGORITHM                          = var.test_env_vars.JWT_ALGORITHM
-    _JWT_ACCESS_TOKEN_EXPIRE_MINUTES        = tostring(var.test_env_vars.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
-    _DEBUG                                  = tostring(var.test_env_vars.DEBUG)
-    _LOG_LEVEL                              = var.test_env_vars.LOG_LEVEL
-    _API_HOST                               = var.test_env_vars.API_HOST
-    _API_PORT                               = tostring(var.test_env_vars.API_PORT)
-    _WEBHOOK_TOKEN_SECRET                   = "WEBHOOK_TOKEN"
-    _WHATSAPP_API_TOKEN_SECRET              = "WHATSAPP_API_TOKEN"
-    _OPENAI_API_KEY_SECRET                  = "OPENAI_API_KEY"
-    _LANGCHAIN_API_KEY_SECRET               = "LANGCHAIN_API_KEY"
-    _PINECONE_API_KEY_SECRET                = "PINECONE_API_KEY"
-    _JWT_SECRET_KEY_SECRET                  = "JWT_SECRET_KEY"
-  }
-
-  service_account = google_service_account.cloudrun_deployer.id
-
-  depends_on = [
-    google_project_service.cloudbuild_api,
-    google_artifact_registry_repository.gcp_docker_repo
-  ]
-}
-
-# Cloud Build Trigger for Celery Worker
-resource "google_cloudbuild_trigger" "celery_worker_trigger" {
-  project     = var.gcp_project_id
-  name        = "whatsapp-ai-celery-worker-deploy"
-  description = "Deploy WhatsApp AI Celery Worker to Cloud Run Jobs on push to main branch"
-
-  github {
-    owner = var.git_hub_owner
-    name  = github_repository.github_repo.name
-    push {
-      branch = "^main$"
-    }
-  }
-
-  filename = "cloudbuild-celery.yaml"
-
-  substitutions = {
-    _GCP_LOCATION                            = var.gcp_zone_india
-    _ARTIFACT_REGISTRY_REPO                  = var.gcp_docker_repo_name
-    _IMAGE_NAME                              = "whatsapp-ai-celery-worker"
-    _JOB_NAME                                = "whatsapp-ai-celery-worker"
-    _ENVIRONMENT                             = var.test_env_vars.ENVIRONMENT
-    _GCP_STORAGE_BUCKET                      = var.test_env_vars.GCP_STORAGE_BUCKET
-    _FIRESTORE_COLLECTION_CHAT_HISTORY       = var.test_env_vars.FIRESTORE_COLLECTION_CHAT_HISTORY
-    _FIRESTORE_COLLECTION_PROCESSED_MESSAGES = var.test_env_vars.FIRESTORE_COLLECTION_PROCESSED_MESSAGES
-    _WHATSAPP_PHONE_NUMBER_ID                = var.test_env_vars.WHATSAPP_PHONE_NUMBER_ID
-    _WHATSAPP_BUSINESS_ACCOUNT_ID            = var.test_env_vars.WHATSAPP_BUSINESS_ACCOUNT_ID
-    _OPENAI_MODEL                            = var.test_env_vars.OPENAI_MODEL
-    _LANGCHAIN_TRACING_V2                    = tostring(var.test_env_vars.LANGCHAIN_TRACING_V2)
-    _PINECONE_INDEX_NAME                     = var.test_env_vars.PINECONE_INDEX_NAME
-    _TEMP_FILE_PATH                          = var.test_env_vars.TEMP_FILE_PATH
-    _JWT_ALGORITHM                           = var.test_env_vars.JWT_ALGORITHM
-    _JWT_ACCESS_TOKEN_EXPIRE_MINUTES         = tostring(var.test_env_vars.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
-    _DEBUG                                   = tostring(var.test_env_vars.DEBUG)
-    _LOG_LEVEL                               = var.test_env_vars.LOG_LEVEL
-    _API_HOST                                = var.test_env_vars.API_HOST
-    _API_PORT                                = tostring(var.test_env_vars.API_PORT)
-    _WEBHOOK_TOKEN_SECRET                    = "WEBHOOK_TOKEN"
-    _WHATSAPP_API_TOKEN_SECRET               = "WHATSAPP_API_TOKEN"
-    _OPENAI_API_KEY_SECRET                   = "OPENAI_API_KEY"
-    _LANGCHAIN_API_KEY_SECRET                = "LANGCHAIN_API_KEY"
-    _PINECONE_API_KEY_SECRET                 = "PINECONE_API_KEY"
-    _JWT_SECRET_KEY_SECRET                   = "JWT_SECRET_KEY"
-  }
-
-  service_account = google_service_account.cloudrun_deployer.id
-
-  depends_on = [
-    google_project_service.cloudbuild_api,
-    google_artifact_registry_repository.gcp_docker_repo
-  ]
-}
+# # Cloud Build Trigger for Main Application
+# resource "google_cloudbuild_trigger" "main_app_trigger" {
+#   project     = var.gcp_project_id
+#   name        = "whatsapp-ai-agent-deploy"
+#   description = "Deploy WhatsApp AI Agent to Cloud Run on push to main branch"
+#
+#   github {
+#     owner = var.git_hub_owner
+#     name  = github_repository.github_repo.name
+#     push {
+#       branch = "^main$"
+#     }
+#   }
+#
+#   filename = "cloudbuild.yaml"
+#
+#   substitutions = {
+#     _GCP_LOCATION                           = var.gcp_zone_india
+#     _ARTIFACT_REGISTRY_REPO                 = var.gcp_docker_repo_name
+#     _IMAGE_NAME                             = "whatsapp-ai-agent"
+#     _SERVICE_NAME                           = "whatsapp-ai-agent"
+#     _ENVIRONMENT                            = var.test_env_vars.ENVIRONMENT
+#     _GCP_STORAGE_BUCKET                     = var.test_env_vars.GCP_STORAGE_BUCKET
+#     _FIRESTORE_COLLECTION_CHAT_HISTORY      = var.test_env_vars.FIRESTORE_COLLECTION_CHAT_HISTORY
+#     _FIRESTORE_COLLECTION_PROCESSED_MESSAGES = var.test_env_vars.FIRESTORE_COLLECTION_PROCESSED_MESSAGES
+#     _WHATSAPP_PHONE_NUMBER_ID               = var.test_env_vars.WHATSAPP_PHONE_NUMBER_ID
+#     _WHATSAPP_BUSINESS_ACCOUNT_ID           = var.test_env_vars.WHATSAPP_BUSINESS_ACCOUNT_ID
+#     _OPENAI_MODEL                           = var.test_env_vars.OPENAI_MODEL
+#     _LANGCHAIN_TRACING_V2                   = tostring(var.test_env_vars.LANGCHAIN_TRACING_V2)
+#     _PINECONE_INDEX_NAME                    = var.test_env_vars.PINECONE_INDEX_NAME
+#     _TEMP_FILE_PATH                         = var.test_env_vars.TEMP_FILE_PATH
+#     _JWT_ALGORITHM                          = var.test_env_vars.JWT_ALGORITHM
+#     _JWT_ACCESS_TOKEN_EXPIRE_MINUTES        = tostring(var.test_env_vars.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
+#     _DEBUG                                  = tostring(var.test_env_vars.DEBUG)
+#     _LOG_LEVEL                              = var.test_env_vars.LOG_LEVEL
+#     _API_HOST                               = var.test_env_vars.API_HOST
+#     _API_PORT                               = tostring(var.test_env_vars.API_PORT)
+#     _WEBHOOK_TOKEN_SECRET                   = "WEBHOOK_TOKEN"
+#     _WHATSAPP_API_TOKEN_SECRET              = "WHATSAPP_API_TOKEN"
+#     _OPENAI_API_KEY_SECRET                  = "OPENAI_API_KEY"
+#     _LANGCHAIN_API_KEY_SECRET               = "LANGCHAIN_API_KEY"
+#     _PINECONE_API_KEY_SECRET                = "PINECONE_API_KEY"
+#     _JWT_SECRET_KEY_SECRET                  = "JWT_SECRET_KEY"
+#   }
+#
+#   service_account = google_service_account.cloudrun_deployer.id
+#
+#   depends_on = [
+#     google_project_service.cloudbuild_api,
+#     google_artifact_registry_repository.gcp_docker_repo
+#   ]
+# }
+#
+# # Cloud Build Trigger for Celery Worker
+# resource "google_cloudbuild_trigger" "celery_worker_trigger" {
+#   project     = var.gcp_project_id
+#   name        = "whatsapp-ai-celery-worker-deploy"
+#   description = "Deploy WhatsApp AI Celery Worker to Cloud Run Jobs on push to main branch"
+#
+#   github {
+#     owner = var.git_hub_owner
+#     name  = github_repository.github_repo.name
+#     push {
+#       branch = "^main$"
+#     }
+#   }
+#
+#   filename = "cloudbuild-celery.yaml"
+#
+#   substitutions = {
+#     _GCP_LOCATION                            = var.gcp_zone_india
+#     _ARTIFACT_REGISTRY_REPO                  = var.gcp_docker_repo_name
+#     _IMAGE_NAME                              = "whatsapp-ai-celery-worker"
+#     _JOB_NAME                                = "whatsapp-ai-celery-worker"
+#     _ENVIRONMENT                             = var.test_env_vars.ENVIRONMENT
+#     _GCP_STORAGE_BUCKET                      = var.test_env_vars.GCP_STORAGE_BUCKET
+#     _FIRESTORE_COLLECTION_CHAT_HISTORY       = var.test_env_vars.FIRESTORE_COLLECTION_CHAT_HISTORY
+#     _FIRESTORE_COLLECTION_PROCESSED_MESSAGES = var.test_env_vars.FIRESTORE_COLLECTION_PROCESSED_MESSAGES
+#     _WHATSAPP_PHONE_NUMBER_ID                = var.test_env_vars.WHATSAPP_PHONE_NUMBER_ID
+#     _WHATSAPP_BUSINESS_ACCOUNT_ID            = var.test_env_vars.WHATSAPP_BUSINESS_ACCOUNT_ID
+#     _OPENAI_MODEL                            = var.test_env_vars.OPENAI_MODEL
+#     _LANGCHAIN_TRACING_V2                    = tostring(var.test_env_vars.LANGCHAIN_TRACING_V2)
+#     _PINECONE_INDEX_NAME                     = var.test_env_vars.PINECONE_INDEX_NAME
+#     _TEMP_FILE_PATH                          = var.test_env_vars.TEMP_FILE_PATH
+#     _JWT_ALGORITHM                           = var.test_env_vars.JWT_ALGORITHM
+#     _JWT_ACCESS_TOKEN_EXPIRE_MINUTES         = tostring(var.test_env_vars.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
+#     _DEBUG                                   = tostring(var.test_env_vars.DEBUG)
+#     _LOG_LEVEL                               = var.test_env_vars.LOG_LEVEL
+#     _API_HOST                                = var.test_env_vars.API_HOST
+#     _API_PORT                                = tostring(var.test_env_vars.API_PORT)
+#     _WEBHOOK_TOKEN_SECRET                    = "WEBHOOK_TOKEN"
+#     _WHATSAPP_API_TOKEN_SECRET               = "WHATSAPP_API_TOKEN"
+#     _OPENAI_API_KEY_SECRET                   = "OPENAI_API_KEY"
+#     _LANGCHAIN_API_KEY_SECRET                = "LANGCHAIN_API_KEY"
+#     _PINECONE_API_KEY_SECRET                 = "PINECONE_API_KEY"
+#     _JWT_SECRET_KEY_SECRET                   = "JWT_SECRET_KEY"
+#   }
+#
+#   service_account = google_service_account.cloudrun_deployer.id
+#
+#   depends_on = [
+#     google_project_service.cloudbuild_api,
+#     google_artifact_registry_repository.gcp_docker_repo
+#   ]
+# }

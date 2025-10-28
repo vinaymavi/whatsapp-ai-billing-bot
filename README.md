@@ -127,14 +127,15 @@ This project includes comprehensive CI/CD setup with two deployment options:
 See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions on setting up the GitHub Actions deployment pipeline.
 
 ### Option 2: Google Cloud Build Triggers (Automatic Deployment)
-**Automatic CI/CD** (triggers on push to main):
-- Automatic builds on every push to main branch
+**Infrastructure for Automated CI/CD**:
+- Terraform configuration for Cloud Build trigger infrastructure
+- IAM permissions for Secret Manager, Cloud Build, and deployment
+- Example trigger configurations you can customize
 - Direct integration with Google Cloud Platform
 - Built-in security with Secret Manager
 - Faster builds with GCP infrastructure
-- Automatic deployment to Cloud Run
 
-See [docs/CLOUD_BUILD_TRIGGERS.md](docs/CLOUD_BUILD_TRIGGERS.md) for detailed instructions on setting up Cloud Build triggers.
+See [docs/CLOUD_BUILD_TRIGGERS.md](docs/CLOUD_BUILD_TRIGGERS.md) for detailed instructions on setting up the infrastructure and creating your Cloud Build triggers.
 
 ## API Documentation
 

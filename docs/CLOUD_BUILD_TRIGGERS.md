@@ -1,15 +1,26 @@
-# Google Cloud Build Triggers
+# Google Cloud Build Triggers Infrastructure
 
-This document explains how to use Google Cloud Build triggers to automatically build and deploy the WhatsApp AI Billing Bot to Cloud Run.
+This document explains how to set up the infrastructure for Google Cloud Build triggers to automatically build and deploy the WhatsApp AI Billing Bot to Cloud Run.
 
 ## Overview
 
-The repository includes two Cloud Build trigger configurations:
+This repository includes Terraform configuration to provision the necessary infrastructure for Cloud Build triggers:
 
-1. **Main Application Trigger** (`cloudbuild.yaml`): Builds and deploys the main WhatsApp AI application to Cloud Run
-2. **Celery Worker Trigger** (`cloudbuild-celery.yaml`): Builds and deploys the Celery worker to Cloud Run Jobs
+- **Cloud Build API**: Enabled for your GCP project
+- **IAM Permissions**: Service account with necessary permissions to:
+  - Access Secret Manager
+  - Create and manage Cloud Build operations
+  - Write logs
+  - Deploy to Cloud Run
+- **Example Trigger Configuration**: Commented example triggers in `infrastructure/main.tf` that you can customize
 
-These triggers automatically build and deploy your application when changes are pushed to the `main` branch.
+## What This Provides
+
+This infrastructure setup gives you the foundation to create Cloud Build triggers. You will need to:
+
+1. Create your own `cloudbuild.yaml` file(s) for your application
+2. Uncomment and customize the example triggers in `infrastructure/main.tf`, or
+3. Create triggers manually via the GCP Console
 
 ## Prerequisites
 
@@ -17,7 +28,7 @@ Before setting up Cloud Build triggers, ensure you have:
 
 1. A Google Cloud Platform (GCP) account
 2. A GitHub repository connected to Google Cloud Build
-3. The following GCP APIs enabled:
+3. The following GCP APIs enabled (Terraform will enable these):
    - Cloud Build API
    - Cloud Run API
    - Artifact Registry API
@@ -25,11 +36,11 @@ Before setting up Cloud Build triggers, ensure you have:
    - Firestore API
    - Cloud Storage API
 
-## Setting Up Cloud Build Triggers
+## Setting Up the Infrastructure
 
-### Option 1: Using Terraform (Recommended)
+### Step 1: Apply Terraform Configuration
 
-The repository includes Terraform configuration to automatically provision Cloud Build triggers.
+The Terraform configuration provisions the necessary infrastructure for Cloud Build.
 
 1. Navigate to the infrastructure directory:
    ```bash
@@ -50,48 +61,136 @@ The repository includes Terraform configuration to automatically provision Cloud
    terraform apply tfplan
    ```
 
-This will create:
-- Cloud Build triggers for both main app and Celery worker
-- Required IAM permissions for the service account
-- Enable necessary GCP APIs
+This will provision:
+- Cloud Build API enablement
+- Required IAM permissions for the service account (Secret Manager access, Cloud Build editor, logging)
+- Example trigger configurations (commented out in `infrastructure/main.tf`)
 
-### Option 2: Manual Setup via GCP Console
+### Step 2: Create Your Cloud Build Configuration File
+
+Create a `cloudbuild.yaml` file in the root of your repository that defines your build and deployment process. Here's a basic example structure:
+
+```yaml
+steps:
+  # Build your Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - '${_GCP_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPO}/${_IMAGE_NAME}:${SHORT_SHA}'
+      - '.'
+
+  # Push to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - '${_GCP_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPO}/${_IMAGE_NAME}:${SHORT_SHA}'
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - '${_SERVICE_NAME}'
+      - '--image=${_GCP_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPO}/${_IMAGE_NAME}:${SHORT_SHA}'
+      - '--region=${_GCP_LOCATION}'
+      - '--platform=managed'
+
+substitutions:
+  _GCP_LOCATION: 'asia-south1'
+  _ARTIFACT_REGISTRY_REPO: 'whatsapp-chatbot-repo'
+  _IMAGE_NAME: 'whatsapp-ai-agent'
+  _SERVICE_NAME: 'whatsapp-ai-agent'
+
+timeout: '1800s'
+```
+
+### Step 3: Create Cloud Build Triggers
+
+You have two options to create the triggers:
+
+#### Option A: Using Terraform (Uncomment Example Configuration)
+
+1. Edit `infrastructure/main.tf` and uncomment the example trigger configurations
+2. Customize the trigger settings (branch, filename, substitutions) as needed
+3. Run `terraform apply` to create the triggers
+
+#### Option B: Manual Setup via GCP Console
 
 1. Go to the [Cloud Build Triggers page](https://console.cloud.google.com/cloud-build/triggers) in GCP Console
 
 2. Click "Create Trigger"
 
-3. Configure the main application trigger:
-   - **Name**: `whatsapp-ai-agent-deploy`
-   - **Description**: Deploy WhatsApp AI Agent to Cloud Run on push to main branch
+3. Configure your trigger:
+   - **Name**: Your choice (e.g., `whatsapp-ai-agent-deploy`)
+   - **Description**: Description of what the trigger does
    - **Event**: Push to a branch
    - **Source**: Select your GitHub repository
-   - **Branch**: `^main$` (regex pattern)
+   - **Branch**: `^main$` (regex pattern for main branch)
    - **Configuration**: Cloud Build configuration file
    - **Cloud Build configuration file location**: `cloudbuild.yaml`
    - **Service account**: Select the Cloud Run deployer service account
 
-4. Add substitution variables (these are already defined in `cloudbuild.yaml` with defaults)
+4. Add substitution variables as needed
 
-5. Repeat steps 2-4 for the Celery worker trigger using `cloudbuild-celery.yaml`
+5. Click "Create"
 
-## Cloud Build Configuration Files
+## Creating Cloud Build Configuration Files
 
-### cloudbuild.yaml (Main Application)
+Your `cloudbuild.yaml` file should define the complete build and deployment process. Key sections include:
 
-This file defines the build and deployment process for the main application:
+### Steps
+Define the build steps in sequence:
+- **Build**: Build Docker images
+- **Push**: Push images to Artifact Registry
+- **Deploy**: Deploy to Cloud Run or Cloud Run Jobs
 
-1. **Build Docker Image**: Builds the Docker image using the Dockerfile
-2. **Push to Artifact Registry**: Pushes the image to Google Artifact Registry
-3. **Deploy to Cloud Run**: Deploys the image to Cloud Run with the appropriate configuration
+### Substitutions
+Variables that can be customized per trigger (e.g., region, image name, service name)
 
-### cloudbuild-celery.yaml (Celery Worker)
+### Timeout
+Maximum time allowed for the build (default: 10 minutes, max: 24 hours)
 
-This file defines the build and deployment process for the Celery worker:
+### Example for Multi-Stage Build
 
-1. **Build Docker Image**: Builds the Docker image using Dockerfile.celery
-2. **Push to Artifact Registry**: Pushes the image to Google Artifact Registry
-3. **Deploy to Cloud Run Jobs**: Deploys the image to Cloud Run Jobs
+If you have a multi-stage build (like frontend + backend), your cloudbuild.yaml might look like:
+
+```yaml
+steps:
+  # Build the Docker image (includes frontend build stage)
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - '${_GCP_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPO}/${_IMAGE_NAME}:${SHORT_SHA}'
+      - '-t'
+      - '${_GCP_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPO}/${_IMAGE_NAME}:latest'
+      - '.'
+
+  # Push both tags
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', '--all-tags', '${_GCP_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPO}/${_IMAGE_NAME}']
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - '${_SERVICE_NAME}'
+      - '--image=${_GCP_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPO}/${_IMAGE_NAME}:${SHORT_SHA}'
+      - '--region=${_GCP_LOCATION}'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--memory=512Mi'
+      - '--cpu=1'
+      - '--update-secrets=WEBHOOK_TOKEN=WEBHOOK_TOKEN:latest,WHATSAPP_API_TOKEN=WHATSAPP_API_TOKEN:latest,OPENAI_API_KEY=OPENAI_API_KEY:latest'
+
+images:
+  - '${_GCP_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPO}/${_IMAGE_NAME}:${SHORT_SHA}'
+  - '${_GCP_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPO}/${_IMAGE_NAME}:latest'
+```
 
 ## Environment Variables and Secrets
 

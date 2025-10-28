@@ -99,14 +99,21 @@ This Terraform configuration provisions:
 - **Firestore**: Database for chat history and processed messages
 - **Cloud Build Triggers**: Automatic build and deployment triggers (see below)
 
-### Cloud Build Triggers (New)
+### Cloud Build Infrastructure
 
-Terraform now provisions Cloud Build triggers that automatically build and deploy your application:
+Terraform provisions the infrastructure needed for Cloud Build triggers:
 
-1. **Main Application Trigger**: Deploys the WhatsApp AI agent to Cloud Run
-2. **Celery Worker Trigger**: Deploys the Celery worker to Cloud Run Jobs
+- **Cloud Build API**: Enabled for your GCP project
+- **IAM Permissions**: Service account with permissions for:
+  - Secret Manager access
+  - Cloud Build operations
+  - Log writing
+  - Cloud Run deployment
+- **Example Trigger Configurations**: Commented examples in `main.tf` that you can customize
 
-Both triggers activate on pushes to the `main` branch. For detailed information about Cloud Build triggers, see [../docs/CLOUD_BUILD_TRIGGERS.md](../docs/CLOUD_BUILD_TRIGGERS.md).
+**Note**: The actual Cloud Build triggers are provided as commented examples in `main.tf`. You can uncomment and customize them, or create triggers manually via the GCP Console. You'll also need to create your own `cloudbuild.yaml` file(s) to define your build and deployment process.
+
+For detailed information about setting up Cloud Build triggers, see [../docs/CLOUD_BUILD_TRIGGERS.md](../docs/CLOUD_BUILD_TRIGGERS.md).
 
 If you'd like, I can also:
 
