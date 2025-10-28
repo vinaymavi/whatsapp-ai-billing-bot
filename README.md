@@ -109,8 +109,9 @@ docker run -p 8000:8000 --env-file .env whatsapp-ai-billing-bot
 
 ## Enterprise Deployment
 
-This project includes comprehensive CI/CD setup:
+This project includes comprehensive CI/CD setup with two deployment options:
 
+### Option 1: GitHub Actions (Manual Deployment)
 **Continuous Integration** (automatic on PRs and pushes to main):
 - Automated backend and frontend unit tests
 - Docker image build validation
@@ -123,7 +124,17 @@ This project includes comprehensive CI/CD setup:
 - Enterprise-grade security compliance
 - Cost-efficient infrastructure
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions on setting up the deployment pipeline.
+See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions on setting up the GitHub Actions deployment pipeline.
+
+### Option 2: Google Cloud Build Triggers (Automatic Deployment)
+**Automatic CI/CD** (triggers on push to main):
+- Automatic builds on every push to main branch
+- Direct integration with Google Cloud Platform
+- Built-in security with Secret Manager
+- Faster builds with GCP infrastructure
+- Automatic deployment to Cloud Run
+
+See [docs/CLOUD_BUILD_TRIGGERS.md](docs/CLOUD_BUILD_TRIGGERS.md) for detailed instructions on setting up Cloud Build triggers.
 
 ## API Documentation
 
