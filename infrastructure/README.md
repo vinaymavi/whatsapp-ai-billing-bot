@@ -83,6 +83,31 @@ This repository uses a Terraform backend (see `backend.tf`). Ensure any backend-
 - `.env` — environment variables (contains secrets; keep locally)
 - `backend.tf`, `main.tf`, `variables.tf`, `outputs.tf` — Terraform configuration files
 
+## What's provisioned by Terraform
+
+This Terraform configuration provisions:
+
+### GitHub Resources
+- Repository settings and environment configuration
+- Environment variables and secrets for GitHub Actions
+
+### Google Cloud Resources
+- **Artifact Registry**: Docker image repository with retention policy
+- **Service Accounts**: Cloud Run deployer with appropriate IAM roles
+- **Workload Identity**: Federation between GitHub Actions and GCP
+- **Cloud Storage**: Bucket for Celery worker files (7-day TTL)
+- **Firestore**: Database for chat history and processed messages
+- **Cloud Build Triggers**: Automatic build and deployment triggers (see below)
+
+### Cloud Build Triggers (New)
+
+Terraform now provisions Cloud Build triggers that automatically build and deploy your application:
+
+1. **Main Application Trigger**: Deploys the WhatsApp AI agent to Cloud Run
+2. **Celery Worker Trigger**: Deploys the Celery worker to Cloud Run Jobs
+
+Both triggers activate on pushes to the `main` branch. For detailed information about Cloud Build triggers, see [../docs/CLOUD_BUILD_TRIGGERS.md](../docs/CLOUD_BUILD_TRIGGERS.md).
+
 If you'd like, I can also:
 
 - add an `.env.example` template that lists required variables (without secrets), or
