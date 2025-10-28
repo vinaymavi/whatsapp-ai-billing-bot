@@ -35,6 +35,7 @@ WhatsApp AI Billing Bot is an innovative solution that leverages artificial inte
 - **Robust Data Storage**: Google Firestore for document data and Pinecone for vector embeddings
 - **Secure Document Management**: Google Cloud Storage with enterprise security standards
 - **Enterprise Deployment**: Containerized with Docker and deployed on Google Cloud Run with CI/CD
+- **Event-Driven Processing**: Pub/Sub triggers for Celery tasks with Eventarc integration
 
 ## Local Development
 For development and testing purposes, you can run the application locally with an ngrok tunnel to receive WhatsApp webhooks:
@@ -109,9 +110,8 @@ docker run -p 8000:8000 --env-file .env whatsapp-ai-billing-bot
 
 ## Enterprise Deployment
 
-This project includes comprehensive CI/CD setup with two deployment options:
+This project includes comprehensive CI/CD setup:
 
-### Option 1: GitHub Actions (Manual Deployment)
 **Continuous Integration** (automatic on PRs and pushes to main):
 - Automated backend and frontend unit tests
 - Docker image build validation
@@ -124,18 +124,7 @@ This project includes comprehensive CI/CD setup with two deployment options:
 - Enterprise-grade security compliance
 - Cost-efficient infrastructure
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions on setting up the GitHub Actions deployment pipeline.
-
-### Option 2: Google Cloud Build Triggers (Automatic Deployment)
-**Infrastructure for Automated CI/CD**:
-- Terraform configuration for Cloud Build trigger infrastructure
-- IAM permissions for Secret Manager, Cloud Build, and deployment
-- Example trigger configurations you can customize
-- Direct integration with Google Cloud Platform
-- Built-in security with Secret Manager
-- Faster builds with GCP infrastructure
-
-See [docs/CLOUD_BUILD_TRIGGERS.md](docs/CLOUD_BUILD_TRIGGERS.md) for detailed instructions on setting up the infrastructure and creating your Cloud Build triggers.
+See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions on setting up the deployment pipeline.
 
 ## API Documentation
 

@@ -93,27 +93,24 @@ This Terraform configuration provisions:
 
 ### Google Cloud Resources
 - **Artifact Registry**: Docker image repository with retention policy
-- **Service Accounts**: Cloud Run deployer with appropriate IAM roles
+- **Service Accounts**: Cloud Run deployer and Eventarc trigger service accounts with appropriate IAM roles
 - **Workload Identity**: Federation between GitHub Actions and GCP
 - **Cloud Storage**: Bucket for Celery worker files (7-day TTL)
 - **Firestore**: Database for chat history and processed messages
-- **Cloud Build Triggers**: Automatic build and deployment triggers (see below)
+- **Pub/Sub**: Celery message queue topic
+- **Eventarc Trigger**: Pub/Sub to Cloud Run trigger for event-driven Celery task processing
 
-### Cloud Build Infrastructure
+### Cloud Run Pub/Sub Trigger
 
-Terraform provisions the infrastructure needed for Cloud Build triggers:
+The infrastructure includes an Eventarc trigger that connects Pub/Sub (Celery message queue) to your Cloud Run service:
 
-- **Cloud Build API**: Enabled for your GCP project
-- **IAM Permissions**: Service account with permissions for:
-  - Secret Manager access
-  - Cloud Build operations
-  - Log writing
-  - Cloud Run deployment
-- **Example Trigger Configurations**: Commented examples in `main.tf` that you can customize
+- **Pub/Sub Topic**: `celery` topic for task queue
+- **Eventarc Trigger**: Automatically invokes Cloud Run endpoint when messages are published
+- **Service Account**: Dedicated service account with invoker and subscriber permissions
 
-**Note**: The actual Cloud Build triggers are provided as commented examples in `main.tf`. You can uncomment and customize them, or create triggers manually via the GCP Console. You'll also need to create your own `cloudbuild.yaml` file(s) to define your build and deployment process.
+This enables event-driven processing where Celery tasks published to Pub/Sub automatically trigger your Cloud Run service endpoint.
 
-For detailed information about setting up Cloud Build triggers, see [../docs/CLOUD_BUILD_TRIGGERS.md](../docs/CLOUD_BUILD_TRIGGERS.md).
+For detailed information about the Pub/Sub trigger setup, see [../docs/CLOUD_RUN_PUBSUB_TRIGGER.md](../docs/CLOUD_RUN_PUBSUB_TRIGGER.md).
 
 If you'd like, I can also:
 
