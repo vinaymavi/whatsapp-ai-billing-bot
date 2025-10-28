@@ -35,7 +35,6 @@ WhatsApp AI Billing Bot is an innovative solution that leverages artificial inte
 - **Robust Data Storage**: Google Firestore for document data and Pinecone for vector embeddings
 - **Secure Document Management**: Google Cloud Storage with enterprise security standards
 - **Enterprise Deployment**: Containerized with Docker and deployed on Google Cloud Run with CI/CD
-- **Event-Driven Processing**: Pub/Sub triggers for Celery tasks with Eventarc integration
 
 ## Local Development
 For development and testing purposes, you can run the application locally with an ngrok tunnel to receive WhatsApp webhooks:

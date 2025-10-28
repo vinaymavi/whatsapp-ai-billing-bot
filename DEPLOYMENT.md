@@ -2,8 +2,6 @@
 
 This guide explains how to set up the necessary components to deploy the WhatsApp AI Billing Bot to Google Cloud Run using GitHub Actions.
 
-> **Alternative Deployment Option**: This repository also supports deployment using Google Cloud Build triggers. The infrastructure setup (Terraform configuration) is provided, and you can create your own build configuration files and triggers. See [docs/CLOUD_BUILD_TRIGGERS.md](docs/CLOUD_BUILD_TRIGGERS.md) for detailed instructions on setting up the Cloud Build infrastructure.
-
 ## CI/CD Workflows
 
 This repository uses two separate GitHub Actions workflows:

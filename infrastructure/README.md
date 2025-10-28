@@ -83,35 +83,6 @@ This repository uses a Terraform backend (see `backend.tf`). Ensure any backend-
 - `.env` — environment variables (contains secrets; keep locally)
 - `backend.tf`, `main.tf`, `variables.tf`, `outputs.tf` — Terraform configuration files
 
-## What's provisioned by Terraform
-
-This Terraform configuration provisions:
-
-### GitHub Resources
-- Repository settings and environment configuration
-- Environment variables and secrets for GitHub Actions
-
-### Google Cloud Resources
-- **Artifact Registry**: Docker image repository with retention policy
-- **Service Accounts**: Cloud Run deployer and Eventarc trigger service accounts with appropriate IAM roles
-- **Workload Identity**: Federation between GitHub Actions and GCP
-- **Cloud Storage**: Bucket for Celery worker files (7-day TTL)
-- **Firestore**: Database for chat history and processed messages
-- **Pub/Sub**: Celery message queue topic
-- **Eventarc Trigger**: Pub/Sub to Cloud Run trigger for event-driven Celery task processing
-
-### Cloud Run Pub/Sub Trigger
-
-The infrastructure includes an Eventarc trigger that connects Pub/Sub (Celery message queue) to your Cloud Run service:
-
-- **Pub/Sub Topic**: `celery` topic for task queue
-- **Eventarc Trigger**: Automatically invokes Cloud Run endpoint when messages are published
-- **Service Account**: Dedicated service account with invoker and subscriber permissions
-
-This enables event-driven processing where Celery tasks published to Pub/Sub automatically trigger your Cloud Run service endpoint.
-
-For detailed information about the Pub/Sub trigger setup, see [../docs/CLOUD_RUN_PUBSUB_TRIGGER.md](../docs/CLOUD_RUN_PUBSUB_TRIGGER.md).
-
 If you'd like, I can also:
 
 - add an `.env.example` template that lists required variables (without secrets), or
