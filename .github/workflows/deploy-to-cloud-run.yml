@@ -94,7 +94,7 @@ jobs:
               --location=${{ env.GCP_LOCATION }} \
               --destination-run-service=${{ env.GCP_IMAGE_NAME }} \
               --destination-run-region=${{ env.GCP_LOCATION }} \
-              --destination-run-path=/api/celery/process \
+              --destination-run-path=/api/admin/celery/process \
               --service-account=${{ env.GCP_SA_EMAIL }}
           else
             echo "Trigger does not exist, creating..."
@@ -102,7 +102,7 @@ jobs:
               --location=${{ env.GCP_LOCATION }} \
               --destination-run-service=${{ env.GCP_IMAGE_NAME }} \
               --destination-run-region=${{ env.GCP_LOCATION }} \
-              --destination-run-path=/api/celery/process \
+              --destination-run-path=/api/admin/celery/process \
               --event-filters="type=google.cloud.pubsub.topic.v1.messagePublished" \
               --transport-topic=projects/${{ env.GCP_PROJECT_ID }}/topics/celery \
               --service-account=${{ env.GCP_SA_EMAIL }}

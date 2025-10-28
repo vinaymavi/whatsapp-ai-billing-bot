@@ -188,3 +188,18 @@ async def get_batch_status(task_id: str):
 
     logger.info(f"Task status retrieved for {task_id}: {task_result.state}")
     return response
+
+
+@router.post("/celery/process", name="Process Celery Pub/Sub Message")
+async def post_celery_process():
+    """
+    Endpoint triggered by Eventarc when Celery Pub/Sub messages are published.
+    
+    This endpoint receives notifications when tasks are added to the Celery queue.
+    Currently logs the event and returns a successful response.
+    
+    Returns:
+        dict: Success response
+    """
+    logger.info("Received Celery Pub/Sub message notification via Eventarc trigger")
+    return {"status": "success", "message": "Celery Pub/Sub message received"}
